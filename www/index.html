@@ -107,6 +107,7 @@ button { font: inherit; color: inherit; }
 .account .acts { display: flex; flex-wrap: wrap; gap: 8px; }
 .account .btn { padding: 8px 14px; }
 .mini { padding: 6px 10px; border: 1px solid var(--line); background: var(--sheet); border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 500; }
+.appbox a { color: var(--accent); }
 .appbox { display: flex; flex-direction: column; gap: 8px; }
 .appbox .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .code { font-family: var(--f-mono); font-size: clamp(30px, 8vw, 44px); font-weight: 500; letter-spacing: .12em; padding: 14px 18px; border-radius: var(--radius); background: var(--soft); align-self: flex-start; user-select: all; }
@@ -137,7 +138,7 @@ h1, h2 { text-wrap: balance; }
 .continue b { font-size: 15.5px; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border-radius: 8px; border: 1px solid transparent; font-weight: 700; cursor: pointer; text-decoration: none; }
 .btn.primary { background: var(--accent); color: var(--accent-ink); }
-.btn.ghost { background: var(--sheet); border-color: var(--line); }
+.btn.ghost { background: var(--sheet); border-color: var(--line); color: var(--ink); }
 .btn.done { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
 .btn:disabled { opacity: .4; cursor: default; }
 
@@ -537,7 +538,8 @@ function renderAccount() {
   $('#who').hidden = !on; $('#pitch').hidden = on;
   $('#loginBtn').hidden = on; $('#logoutBtn').hidden = !on; $('#syncBtn').hidden = !on;
   if (on) { $('#login').textContent = '@' + (auth.login || 'github'); if (auth.avatar) $('#avatar').src = auth.avatar; }
-  if (!CFG.clientId) { $('#loginBtn').disabled = true; $('#pitch').textContent = 'O login com GitHub ainda não foi configurado nesta versão. Seu progresso fica salvo neste aparelho.'; }
+  if (isNative && !CFG.clientId) { $('#loginBtn').disabled = true; $('#pitch').textContent = 'O login com GitHub ainda não foi configurado nesta versão. Seu progresso fica salvo neste aparelho.'; }
+  else if (!isNative && !on) $('#pitch').textContent = 'Entre com o GitHub para ver aqui o mesmo progresso do app do celular.';
 }
 
 async function gh(path, opts = {}) {
@@ -643,7 +645,46 @@ async function syncNow() {
   syncing = false;
 }
 
+async function finishLogin(token) {
+  auth = { token, login: '', avatar: '', gistId: null };
+  const u = await gh('/user');
+  auth.login = u.login; auth.avatar = u.avatar_url;
+  saveAuth(); renderAccount(); render(); await syncNow();
+}
+
+// No navegador o GitHub não permite o login por código, então a pessoa cola um token com permissão "gist".
+function startTokenLogin() {
+  closeMenu(); window.scrollTo(0, 0);
+  const url = 'https://github.com/settings/tokens/new?scopes=gist&description=' + encodeURIComponent('Caderno 201 (navegador)');
+  $('#main').innerHTML = `<article class="sheet"><span class="eyebrow">Entrar com GitHub no navegador</span><h2>Cole um token do GitHub</h2>
+    <ol class="steps">
+      <li>Clique em <b>Criar token no GitHub</b>. A página já abre com a permissão certa (<b>gist</b>) marcada.</li>
+      <li>Em <b>Expiration</b>, escolha <b>No expiration</b> (ou uma data longa).</li>
+      <li>Desça até o fim e clique em <b>Generate token</b>. Copie o código que começa com <code>ghp_</code>.</li>
+      <li>Cole aqui embaixo e clique em <b>Entrar</b>.</li>
+    </ol>
+    <div class="search"><input id="tokIn" type="password" placeholder="ghp_…" autocomplete="off" aria-label="Token do GitHub" style="padding-left:12px"></div>
+    <p class="exp" id="tokStatus">O token fica guardado só neste navegador e dá acesso apenas aos seus gists, não aos repositórios.</p>
+    <div class="sheetfoot"><button class="btn ghost" type="button" id="tokBack">Cancelar</button>
+      <div class="nav"><a class="btn ghost" href="${url}" target="_blank" rel="noopener">Criar token no GitHub</a><button class="btn primary" type="button" id="tokGo">Entrar</button></div></div></article>`;
+  $('#tokBack').onclick = () => render();
+  $('#tokGo').onclick = async () => {
+    const t = $('#tokIn').value.trim();
+    if (!t) { $('#tokStatus').textContent = 'Cole o token antes de entrar.'; return; }
+    $('#tokStatus').textContent = 'Conferindo com o GitHub…';
+    try {
+      const r = await fetch('https://api.github.com/user', { headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + t }, cache: 'no-store' });
+      if (r.status === 401) { $('#tokStatus').textContent = 'O GitHub não aceitou esse token. Confira se copiou inteiro.'; return; }
+      const sc = r.headers.get('x-oauth-scopes');
+      if (sc !== null && !/\bgist\b/.test(sc)) { $('#tokStatus').textContent = 'Esse token não tem a permissão "gist". Crie outro pelo botão acima.'; return; }
+      if (!r.ok) throw new Error(r.status);
+      await finishLogin(t);
+    } catch (e) { $('#tokStatus').textContent = 'Não consegui falar com o GitHub. Confira a internet e tente de novo.'; }
+  };
+}
+
 async function startLogin() {
+  if (!isNative) { startTokenLogin(); return; }
   if (!CFG.clientId) return;
   const run = ++loginRun;
   $('#main').innerHTML = `<article class="sheet"><span class="eyebrow">Entrar com GitHub</span><h2>Preparando o código…</h2></article>`;
@@ -682,9 +723,8 @@ async function startLogin() {
       j = await r.json();
     } catch (e) { continue; }
     if (j.access_token) {
-      auth = { token: j.access_token, login: '', avatar: '', gistId: null };
-      try { const u = await gh('/user'); auth.login = u.login; auth.avatar = u.avatar_url; } catch (e) {}
-      saveAuth(); renderAccount(); render(); await syncNow(); return;
+      try { await finishLogin(j.access_token); } catch (e) { saveAuth(); renderAccount(); render(); }
+      return;
     }
     if (j.error === 'authorization_pending') continue;
     if (j.error === 'slow_down') { interval += 5000; continue; }
@@ -731,6 +771,12 @@ async function checkUpdate(silent) {
 $('#updBtn').onclick = () => checkUpdate(false);
 $('#updGet').onclick = () => { if (apkUrl) { openExternal(apkUrl); $('#updText').textContent = 'Abra o arquivo baixado e toque em Instalar. Seu progresso continua.'; } };
 if (isNative) checkUpdate(true);
+else {
+  // versão web: atualiza sozinha; mostra onde baixar o app do celular
+  $('#appVer').textContent = 'web';
+  $('#updBtn').hidden = true;
+  if (CFG.repo) $('#updText').innerHTML = `Sempre atualizada. App para Android: <a href="https://github.com/${CFG.repo}/releases/latest" target="_blank" rel="noopener">baixar APK</a>.`;
+}
 </script>
 
 </body>
