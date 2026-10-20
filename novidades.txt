@@ -1,5 +1,4 @@
-Versão 1.0.10
-- Instalação da atualização refeita: o app entrega o arquivo ao instalador do Android por sessão, sem depender de arquivo compartilhado. Corrige o erro "problema ao analisar o pacote".
-- Se o Android recusar a instalação, o motivo aparece escrito nos Ajustes.
+Versão 1.0.11
+- Teste da instalação por dentro do app com o instalador novo.
 
 Baixe o arquivo .apk abaixo no celular e toque nele para instalar ou atualizar.
