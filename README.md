@@ -22,19 +22,19 @@ Para atualizar, use o botão **Checar atualização** no menu do app. Ele baixa 
 2. Nome: `Caderno 201`. Em *Homepage URL* e *Authorization callback URL*, use o link deste repositório.
 3. Depois de criar, marque **Enable Device Flow** e salve.
 4. Copie o **Client ID** e cole em `www/config.js`, no campo `clientId`.
-5. Lance uma versão nova (abaixo).
+5. Aumente o número em `versao.txt` para lançar uma versão nova (abaixo).
 
 O Client ID é público. Não coloque o *Client secret* em nenhum arquivo.
 
 ## Lançar uma versão nova
 
-O APK é gerado pelo GitHub Actions (`.github/workflows/apk.yml`) sempre que uma tag `v*` é criada:
+O APK é gerado pelo GitHub Actions (`.github/workflows/apk.yml`):
 
-1. Faça as mudanças e envie para o GitHub.
-2. Na aba **Releases**, clique em **Draft a new release**, crie a tag com o número novo (ex.: `v1.0.1`, sempre maior que a anterior) e publique.
-3. Em alguns minutos o APK aparece anexado a essa versão.
+1. Faça as mudanças que quiser.
+2. Aumente o número em `versao.txt` (ex.: de `1.0.0` para `1.0.1`; sempre maior que o anterior) e envie para o GitHub.
+3. Em alguns minutos aparece uma versão nova na aba **Releases**, com o APK anexado. O botão **Checar atualização** do app passa a oferecê-la.
 
-Também dá para rodar o workflow manualmente em **Actions → Gerar APK → Run workflow** para gerar um APK de teste, sem publicar.
+Se o número não mudar, nada é publicado. Para gerar de novo uma versão que falhou, use **Actions → Gerar APK → Run workflow**.
 
 ## Editar o conteúdo
 
