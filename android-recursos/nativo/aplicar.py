@@ -14,7 +14,7 @@ pacote = os.path.join(ANDROID, 'app', 'src', 'main', 'java', *app_id.split('.'))
 if not os.path.isdir(pacote):
     sys.exit('pasta do pacote não encontrada: ' + pacote)
 
-for nome in ('ApkInstallerPlugin.java', 'MainActivity.java'):
+for nome in ('AndroidUpdater.java', 'MainActivity.java'):
     texto = open(os.path.join(AQUI, nome), encoding='utf-8').read()
     texto = re.sub(r'^package .*;', 'package ' + app_id + ';', texto, count=1, flags=re.M)
     open(os.path.join(pacote, nome), 'w', encoding='utf-8').write(texto)

@@ -6,7 +6,9 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        registerPlugin(ApkInstallerPlugin.class);
         super.onCreate(savedInstanceState);
+        // instalador interno de atualizações (window.AndroidUpdater na página)
+        getBridge().getWebView().addJavascriptInterface(
+                new AndroidUpdater(this, getBridge().getWebView()), "AndroidUpdater");
     }
 }

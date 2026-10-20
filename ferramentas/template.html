@@ -1125,7 +1125,7 @@ function renderUpd() {
   else status = `<div class="status" data-k="${upd.k}"><span class="ic">${ic}</span><div>${esc(upd.msg || 'Toque em "Procurar atualização" para ver se há uma versão nova.')}${upd.k === 'ok' || upd.k === 'new' ? esc(when) : ''}
     ${upd.k === 'new' && upd.notes ? `<pre>${esc(upd.notes)}</pre>` : ''}${upd.k === 'err' && upd.err ? `<pre>${esc(upd.err)}</pre>` : ''}
     ${dl ? `<div class="bar" style="margin-top:8px"><i style="width:${Math.max(3, upd.pct || 0)}%"></i></div>` : ''}</div></div>`;
-  el.innerHTML = `<div class="row2"><span>Versão instalada</span><b>${esc(ver)}</b></div>${status}
+  el.innerHTML = `<div class="row2"><span>Versão instalada</span><b>${esc(ver)}</b></div>${isNative ? `<div class="row2"><span>Instalador interno</span><b>${hasUpdater() ? 'disponível' : 'não disponível'}</b></div>` : ''}${status}
     ${isNative ? `<div class="btnrow"><button class="btn ${hasNew ? 'ghost' : 'primary'}" type="button" id="updCheck" ${upd.k === 'busy' || dl ? 'disabled' : ''}>${upd.k === 'busy' ? 'Procurando…' : 'Procurar atualização'}</button>
       ${hasNew ? `<button class="btn primary" type="button" id="updGet" ${dl ? 'disabled' : ''}>${dl ? 'Baixando…' : 'Baixar e instalar'}</button>` : ''}
       ${hasNew && upd.page && !dl ? '<button class="btn ghost" type="button" id="updPage">Abrir página da versão</button>' : ''}</div>
@@ -1134,32 +1134,34 @@ function renderUpd() {
   const g = $('#updGet'); if (g) g.onclick = installUpdate;
   const p = $('#updPage'); if (p) p.onclick = () => openExternal(upd.page);
 }
-// Baixa o APK dentro do app e abre o instalador do Android. Versões antigas do app não têm
-// esse recurso nativo; nelas o download cai no plano B (abrir no navegador).
-async function installUpdate() {
+// Baixa o APK dentro do app e abre o instalador do Android (window.AndroidUpdater é do código nativo,
+// presente a partir da 1.0.8). Em versões sem ele, o plano B abre o download no navegador do celular.
+const hasUpdater = () => !!(isNative && window.AndroidUpdater && window.AndroidUpdater.install);
+function installUpdate() {
   if (!upd.apkUrl || upd.k === 'dl') return;
-  const fallback = msg => { upd = { ...upd, k: 'err', msg, err: '' }; renderUpd(); openExternal(upd.apkUrl); };
-  let plugin = null;
-  try { plugin = CAP && CAP.registerPlugin ? CAP.registerPlugin('ApkInstaller') : null; } catch (e) { plugin = null; }
-  if (!plugin) { fallback('Este app ainda não baixa por dentro. Abrindo o download no navegador.'); return; }
   const keep = upd;
-  upd = { ...upd, k: 'dl', msg: 'Baixando a versão ' + keep.latest + '…', pct: 0, err: '' }; renderUpd();
-  let h = null;
-  try { h = await plugin.addListener('progress', e => { if (upd.k !== 'dl') return; upd.pct = e.percent >= 0 ? e.percent : 0; upd.msg = 'Baixando a versão ' + keep.latest + (e.percent >= 0 ? ' · ' + e.percent + '%' : '…'); renderUpd(); }); } catch (e) {}
-  try {
-    const r = await plugin.install({ url: keep.apkUrl });
-    if (r && r.status === 'needs_permission') {
+  if (!hasUpdater()) {
+    upd = { ...keep, k: 'err', msg: 'Este app ainda não baixa por dentro. Abrindo o download no navegador.', err: '' }; renderUpd();
+    openExternal(keep.apkUrl);
+    return;
+  }
+  upd = { ...keep, k: 'dl', msg: 'Preparando o download…', pct: 0, err: '' }; renderUpd();
+  window.__updEvent = e => {
+    if (e.type === 'progress') {
+      if (upd.k !== 'dl') return;
+      upd.pct = e.percent >= 0 ? e.percent : 0;
+      upd.msg = 'Baixando a versão ' + keep.latest + (e.percent >= 0 ? ' · ' + e.percent + '%' : '…');
+    } else if (e.type === 'needs_permission') {
       upd = { ...keep, k: 'new', msg: 'Falta uma permissão: na tela que abriu, ligue "Permitir desta fonte" para o Caderno 201, volte ao app e toque de novo em Baixar e instalar.' };
-    } else {
+    } else if (e.type === 'done') {
       upd = { ...keep, k: 'new', msg: 'Download concluído. Confirme a instalação na janela do Android. Se ela não aparecer, toque de novo em Baixar e instalar.' };
+    } else if (e.type === 'error') {
+      upd = { ...keep, k: 'err', msg: 'Não consegui baixar por dentro do app. Tente de novo ou use "Abrir página da versão".', err: e.message || '' };
     }
     renderUpd();
-  } catch (e) {
-    const m = String((e && e.message) || e);
-    if (/not implemented|not available|unimplemented/i.test(m)) fallback('Este app ainda não baixa por dentro. Abrindo o download no navegador.');
-    else { upd = { ...keep, k: 'err', msg: 'Não consegui baixar por dentro do app. Use "Abrir página da versão" ou tente de novo.', err: m }; renderUpd(); }
-  }
-  if (h && h.remove) h.remove();
+  };
+  try { window.AndroidUpdater.install(keep.apkUrl); }
+  catch (e) { upd = { ...keep, k: 'err', msg: 'Não consegui iniciar o download por dentro do app.', err: String((e && e.message) || e) }; renderUpd(); }
 }
 async function fetchRelease() {
   const url = `https://api.github.com/repos/${CFG.repo}/releases/latest`, hdr = { 'Accept': 'application/vnd.github+json' };
