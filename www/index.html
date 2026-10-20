@@ -827,6 +827,8 @@ function renderSearch(q) {
 /* ---------- Navegação ---------- */
 let route = { v: 'inicio' };
 let menuOpen = false;
+let navStack = [];   // telas anteriores (usada pelo botão voltar do Android)
+let aux = false;      // true enquanto uma tela de login está aberta
 const sameRoute = (a, b) => a.v === b.v && String(a.t ?? '') === String(b.t ?? '');
 const hashFor = v => '#' + (BY[v] || v === 'config' || v === 'simulado' ? v : 'inicio');
 // Cada tela nova entra no histórico, então o botão voltar do celular volta de verdade.
@@ -834,11 +836,14 @@ const hashFor = v => '#' + (BY[v] || v === 'config' || v === 'simulado' ? v : 'i
 function go(v, t) {
   const prev = route, st = history.state || {};
   route = { v, t };
-  const replace = (BY[v] && prev.v === v) || sameRoute(prev, route) || st.menu;
+  const trocaTopico = (BY[v] && prev.v === v) || sameRoute(prev, route);
+  if (!trocaTopico) { navStack.push(prev); if (navStack.length > 50) navStack.shift(); }
+  const replace = trocaTopico || st.menu;
   try { (replace ? history.replaceState : history.pushState).call(history, { v, t: t ?? null }, '', hashFor(v)); } catch (e) {}
   render(); setMenu(false); window.scrollTo(0, 0);
 }
 function render() {
+  aux = false;
   if (BY[route.v]) { renderNav(route.v); renderMateria(route.v, route.t); }
   else if (route.v === 'config') { renderNav('config'); renderConfig(); }
   else if (route.v === 'simulado') { renderNav('simulado'); renderSimulado(); }
@@ -1018,7 +1023,7 @@ async function finishLogin(token) {
 
 // No navegador o GitHub não permite o login por código, então a pessoa cola um token com permissão "gist".
 function startTokenLogin() {
-  closeMenu(); window.scrollTo(0, 0);
+  closeMenu(); window.scrollTo(0, 0); aux = true;
   const url = 'https://github.com/settings/tokens/new?scopes=gist&description=' + encodeURIComponent('Caderno 201 (navegador)');
   $('#main').innerHTML = `<article class="sheet"><span class="eyebrow">Entrar com GitHub no navegador</span><h2>Cole um token do GitHub</h2>
     <ol class="steps">
@@ -1050,7 +1055,7 @@ function startTokenLogin() {
 async function startLogin() {
   if (!isNative) { startTokenLogin(); return; }
   if (!CFG.clientId) return;
-  const run = ++loginRun;
+  const run = ++loginRun; aux = true;
   $('#main').innerHTML = `<article class="sheet"><span class="eyebrow">Entrar com GitHub</span><h2>Preparando o código…</h2></article>`;
   closeMenu(); window.scrollTo(0, 0);
   let d;
@@ -1212,6 +1217,26 @@ route = BY[h0] || h0 === 'config' || h0 === 'simulado' ? { v: h0 } : { v: 'inici
 try { history.replaceState({ v: route.v, t: null }, '', hashFor(route.v)); } catch (e) {}
 render();
 
+
+/* ---------- Botão voltar do Android ---------- */
+// O Capacitor sai do app quando não há histórico do WebView. Aqui o app decide: fecha o menu,
+// cancela o login, volta à tela anterior e, na tela inicial, pede um segundo toque para sair.
+let lastBack = 0;
+function androidBack() {
+  if (menuOpen) { setMenu(false); return; }
+  if (aux) { loginRun++; render(); return; }
+  if (navStack.length) { route = navStack.pop(); render(); window.scrollTo(0, 0); return; }
+  if (route.v !== 'inicio') { route = { v: 'inicio' }; render(); window.scrollTo(0, 0); return; }
+  if (Date.now() - lastBack < 2200) {
+    const A = appPlugin(); if (A && A.exitApp) A.exitApp();
+    return;
+  }
+  lastBack = Date.now(); toast('Toque de novo em voltar para sair');
+}
+function appPlugin() {
+  try { return (CAP.Plugins && CAP.Plugins.App) || (CAP.registerPlugin ? CAP.registerPlugin('App') : null); } catch (e) { return null; }
+}
+if (isNative) { const A = appPlugin(); if (A && A.addListener) A.addListener('backButton', androidBack); }
 
 /* ---------- Botões da barra e do menu ---------- */
 $('#navCfg').onclick = () => go('config');
