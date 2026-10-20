@@ -537,6 +537,8 @@ function daysToExam() {
   const d = Math.ceil((new Date(prefs.exam + 'T00:00:00') - new Date()) / 864e5);
   return isNaN(d) || d < 0 ? null : d;
 }
+let webApk = null; // { url, ver } do APK mais novo (só usado na versão web)
+const apkButton = () => !isNative && CFG.repo ? `<a class="btn primary" id="apkBtn" href="${webApk ? esc(webApk.url) : `https://github.com/${esc(CFG.repo)}/releases/latest`}" ${webApk ? '' : 'target="_blank" rel="noopener"'}>${webApk ? 'Baixar o app (APK v' + esc(webApk.ver) + ')' : 'Baixar o app (APK)'}</a>` : '';
 function renderHome() {
   const n = allDone(), pct = Math.round(n / TOTAL * 100);
   const hr = new Date().getHours(), hi = hr < 5 ? 'Boa madrugada' : hr < 12 ? 'Bom dia' : hr < 18 ? 'Boa tarde' : 'Boa noite';
@@ -573,6 +575,7 @@ function renderHome() {
       <div class="stat"><b>${de === null ? '–' : de}</b><span>${de === null ? 'defina a data da prova' : 'dias para a prova'}</span></div>
     </div>
     ${cont}
+    ${!isNative && CFG.repo ? `<div class="cta apk"><div><b>App para Android</b><span>Instale no celular para estudar sem abrir o navegador e receber atualizações. Se o aparelho pedir, permita instalar apps desta fonte.</span></div>${apkButton()}</div>` : ''}
     <div class="cta"><div><b>Simulado misto</b><span>20 questões sorteadas de todas as matérias.</span></div><button class="btn" type="button" id="simBtn">Começar</button></div>
     <div class="sectionhead"><h2>Conhecimentos comuns</h2><span class="eyebrow">3 matérias</span></div>
     <div class="folders">${DATA.filter(m => m.bloco === 'Comum').map(folder).join('')}</div>
@@ -1131,7 +1134,7 @@ function renderUpd() {
   const ver = APP_VERSION === 'dev' ? 'web' : APP_VERSION;
   const when = upd.at ? ` Verificado às ${new Date(upd.at).toTimeString().slice(0, 5)}.` : '';
   let status;
-  if (!isNative) status = `<div class="status" data-k="ok"><span class="ic">✓</span><div>Você está usando a versão web, que é sempre a mais recente.${CFG.repo ? ` Para instalar o app no Android, <a href="https://github.com/${esc(CFG.repo)}/releases/latest" target="_blank" rel="noopener" style="color:var(--accent)">baixe o APK</a>.` : ''}</div></div>`;
+  if (!isNative) status = `<div class="status" data-k="ok"><span class="ic">✓</span><div>Você está usando a versão web, que é sempre a mais recente. Para estudar pelo app no Android, baixe o APK abaixo.</div></div><div class="btnrow">${apkButton()}</div>`;
   else status = `<div class="status" data-k="${upd.k}"><span class="ic">${ic}</span><div>${esc(upd.msg || 'Toque em "Procurar atualização" para ver se há uma versão nova.')}${upd.k === 'ok' || upd.k === 'new' ? esc(when) : ''}
     ${upd.k === 'new' && upd.notes ? `<pre>${esc(upd.notes)}</pre>` : ''}${upd.k === 'err' && upd.err ? `<pre>${esc(upd.err)}</pre>` : ''}
     ${dl ? `<div class="bar" style="margin-top:8px"><i style="width:${Math.max(3, upd.pct || 0)}%"></i></div>` : ''}</div></div>`;
@@ -1212,6 +1215,15 @@ async function checkUpdate(manual) {
   if (manual) toast(upd.msg);
 }
 if (isNative) checkUpdate(false);
+else if (CFG.repo) {
+  // descobre o APK mais novo para o botão de download apontar direto para o arquivo
+  fetchRelease().then(r => {
+    const apk = r && r.data && (r.data.assets || []).find(a => /\.apk$/i.test(a.name));
+    if (!apk) return;
+    webApk = { url: apk.browser_download_url, ver: String(r.data.tag_name || '').replace(/^v/, '') };
+    const a = $('#apkBtn'); if (a) { a.href = webApk.url; a.removeAttribute('target'); a.textContent = 'Baixar o app (APK v' + webApk.ver + ')'; }
+  }).catch(() => {});
+}
 renderUpd();
 
 const h0 = (location.hash || '').slice(1);
