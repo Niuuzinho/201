@@ -56,6 +56,12 @@ jobs:
         if: steps.v.outputs.exists == 'false'
         run: npx cap add android
 
+      - name: Instalador interno de atualizações
+        if: steps.v.outputs.exists == 'false'
+        run: |
+          python3 android-recursos/nativo/aplicar.py
+          cat android/app/src/main/AndroidManifest.xml
+
       - name: Versão, ícone e assinatura
         if: steps.v.outputs.exists == 'false'
         run: |
