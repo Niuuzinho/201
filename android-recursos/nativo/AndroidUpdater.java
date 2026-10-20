@@ -1,16 +1,22 @@
 package io.github.niuuzinho.caderno201;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageInstaller;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
-import androidx.core.content.FileProvider;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import org.json.JSONObject;
@@ -24,9 +30,43 @@ public class AndroidUpdater {
     private final Activity activity;
     private final WebView web;
 
+    private static final String ACTION = "io.github.niuuzinho.caderno201.INSTALL_RESULT";
+
     public AndroidUpdater(Activity activity, WebView web) {
         this.activity = activity;
         this.web = web;
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                onInstallResult(intent);
+            }
+        };
+        IntentFilter filter = new IntentFilter(ACTION);
+        if (Build.VERSION.SDK_INT >= 33) {
+            activity.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            activity.registerReceiver(receiver, filter);
+        }
+    }
+
+    /** Resposta do instalador do Android: pede confirmação, conclui ou explica por que recusou. */
+    private void onInstallResult(Intent intent) {
+        int status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -1);
+        String msg = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
+        if (status == PackageInstaller.STATUS_PENDING_USER_ACTION) {
+            Intent confirm = intent.getParcelableExtra(Intent.EXTRA_INTENT);
+            if (confirm != null) {
+                confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                activity.startActivity(confirm);
+                emit("done", "", 100);
+            } else {
+                emit("error", "O Android não abriu a janela de confirmação.", -1);
+            }
+        } else if (status == PackageInstaller.STATUS_SUCCESS) {
+            emit("done", "", 100);
+        } else {
+            emit("error", "O Android recusou a instalação (código " + status + "): " + (msg != null ? msg : "sem detalhes"), -1);
+        }
     }
 
     @JavascriptInterface
@@ -111,22 +151,35 @@ public class AndroidUpdater {
             throw new Exception("O download não terminou. Tente de novo.");
         }
 
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Uri uri = FileProvider.getUriForFile(
-                            activity, activity.getPackageName() + ".apkprovider", apk);
-                    Intent install = new Intent(Intent.ACTION_VIEW);
-                    install.setDataAndType(uri, "application/vnd.android.package-archive");
-                    install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    activity.startActivity(install);
-                    emit("done", "", 100);
-                } catch (Exception e) {
-                    emit("error", "Não consegui abrir o instalador: " + e, -1);
-                }
-            }
-        });
+        // confere que é mesmo um APK (arquivo zip começa com "PK")
+        InputStream chk = new FileInputStream(apk);
+        int b0 = chk.read(), b1 = chk.read();
+        chk.close();
+        if (b0 != 'P' || b1 != 'K') throw new Exception("O arquivo baixado não é um APK válido (" + apk.length() + " bytes).");
+
+        // entrega o arquivo ao instalador do Android por sessão (sem URI de arquivo)
+        PackageInstaller installer = activity.getPackageManager().getPackageInstaller();
+        PackageInstaller.SessionParams params =
+                new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
+        int sessionId = installer.createSession(params);
+        PackageInstaller.Session session = installer.openSession(sessionId);
+        try {
+            InputStream src = new FileInputStream(apk);
+            OutputStream dst = session.openWrite("Caderno201.apk", 0, apk.length());
+            byte[] chunk = new byte[65536];
+            int r;
+            while ((r = src.read(chunk)) != -1) dst.write(chunk, 0, r);
+            session.fsync(dst);
+            dst.close();
+            src.close();
+            Intent result = new Intent(ACTION).setPackage(activity.getPackageName());
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+            if (Build.VERSION.SDK_INT >= 31) flags |= PendingIntent.FLAG_MUTABLE;
+            PendingIntent pending = PendingIntent.getBroadcast(activity, sessionId, result, flags);
+            session.commit(pending.getIntentSender());
+        } finally {
+            session.close();
+        }
     }
 
     private void emit(String type, String message, int percent) {
