@@ -1,5 +1,15 @@
 <title>Caderno do Cargo 201</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<script>
+(function () {
+  try {
+    var p = JSON.parse(localStorage.getItem('c201.prefs') || '{}'), t = p.theme || 'auto';
+    if (t === 'auto') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t;
+    if (p.font) document.documentElement.dataset.font = p.font;
+  } catch (e) {}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -35,20 +45,43 @@
   --f-read: "Literata", Georgia, "Times New Roman", serif;
   --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
   --read-size: 1.0625rem;
+  --read-lh: 1.7;
+  --shadow: 0 10px 30px -18px rgba(10, 20, 40, .4);
   --radius: 10px;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #0E121A; --sheet: #161B26; --ink: #E4E8EF; --muted: #9AA3B4; --line: #283041; --soft: #1D2330;
-    --accent: #86A2FF; --accent-ink: #0E121A; --accent-soft: #1F2A4A; --hl: rgba(250, 204, 21, .26);
-    --ok: #5BD69A; --ok-soft: #12301F; --bad: #FF9A6B; --bad-soft: #3A1E12; color-scheme: dark;
-  }
-}
+/* Temas: o JS sempre grava data-theme no <html> (o "automático" vira claro ou escuro conforme o aparelho). */
 :root[data-theme="dark"] {
   --paper: #0E121A; --sheet: #161B26; --ink: #E4E8EF; --muted: #9AA3B4; --line: #283041; --soft: #1D2330;
   --accent: #86A2FF; --accent-ink: #0E121A; --accent-soft: #1F2A4A; --hl: rgba(250, 204, 21, .26);
   --ok: #5BD69A; --ok-soft: #12301F; --bad: #FF9A6B; --bad-soft: #3A1E12; color-scheme: dark;
 }
+:root[data-theme="sepia"] {
+  --paper: #F1E7D0; --sheet: #FBF5E6; --ink: #3B2F20; --muted: #7A6A52; --line: #DFD1B1; --soft: #EADDC0;
+  --accent: #9A4A12; --accent-ink: #FFF8EA; --accent-soft: #F0DDBB; --hl: rgba(214, 150, 40, .38);
+  --ok: #3E7A32; --ok-soft: #E1ECC9; --bad: #A8381A; --bad-soft: #F3D9C6;
+}
+:root[data-theme="ocean"] {
+  --paper: #0A1520; --sheet: #112131; --ink: #DCE8F5; --muted: #8DA5BD; --line: #223649; --soft: #182B3D;
+  --accent: #5CC8FF; --accent-ink: #06121C; --accent-soft: #14354D; --hl: rgba(92, 200, 255, .22);
+  --ok: #5BD69A; --ok-soft: #123324; --bad: #FF9A6B; --bad-soft: #3A1E12; color-scheme: dark;
+}
+:root[data-theme="forest"] {
+  --paper: #0E1912; --sheet: #15241B; --ink: #E1EEE5; --muted: #94AD9D; --line: #25392D; --soft: #1B2D22;
+  --accent: #6EE7A1; --accent-ink: #06150C; --accent-soft: #1C3A29; --hl: rgba(190, 230, 90, .22);
+  --ok: #8BE28F; --ok-soft: #173A20; --bad: #FFA17A; --bad-soft: #3A2012; color-scheme: dark;
+}
+:root[data-theme="amoled"] {
+  --paper: #000000; --sheet: #0B0B0C; --ink: #EDEDED; --muted: #9B9B9B; --line: #232325; --soft: #151517;
+  --accent: #8AB4FF; --accent-ink: #000; --accent-soft: #14233F; --hl: rgba(250, 204, 21, .26);
+  --ok: #5BD69A; --ok-soft: #0D2A1A; --bad: #FF9A6B; --bad-soft: #301810; color-scheme: dark;
+}
+:root[data-theme="contrast"] {
+  --paper: #FFFFFF; --sheet: #FFFFFF; --ink: #000000; --muted: #222222; --line: #000000; --soft: #E7E7E7;
+  --accent: #0A2FBF; --accent-ink: #FFFFFF; --accent-soft: #DCE3FF; --hl: rgba(255, 221, 0, .85);
+  --ok: #005A2B; --ok-soft: #D4F5E2; --bad: #A21A00; --bad-soft: #FFE1D6;
+}
+:root[data-font="sans"] { --f-read: "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif; }
+:root[data-hl="off"] .read strong { background: none; }
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -113,7 +146,6 @@ button { font: inherit; color: inherit; }
 .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); transform: translate(-50%, 20px); max-width: min(92vw, 420px); padding: 12px 16px; border-radius: 10px; background: var(--ink); color: var(--paper); font-size: 14px; font-weight: 600; text-align: center; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 60; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .topacts { display: flex; gap: 6px; }
-.mini.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .scrim { display: none; }
 
 /* ---------- Área principal ---------- */
@@ -172,7 +204,7 @@ h1, h2 { text-wrap: balance; }
 .sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(18px, 4vw, 40px); display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 .sheet .kicker { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .sheet h2 { margin: 0; font-size: clamp(22px, 2.8vw, 28px); font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
-.read { font-family: var(--f-read); font-size: var(--read-size); line-height: 1.7; max-width: 68ch; min-width: 0; }
+.read { font-family: var(--f-read); font-size: var(--read-size); line-height: var(--read-lh); max-width: 68ch; min-width: 0; }
 .read > * { margin: 0 0 1em; }
 .read > *:last-child { margin-bottom: 0; }
 .read ul, .read ol { padding-left: 1.3em; }
@@ -219,6 +251,99 @@ h1, h2 { text-wrap: balance; }
 .hit mark { background: var(--hl); color: var(--ink); }
 .empty { color: var(--muted); }
 
+
+/* ---------- Ícones, avisos e destaques ---------- */
+.iconbtn { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border: 1px solid var(--line); background: var(--sheet); border-radius: 10px; cursor: pointer; }
+.iconbtn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.dot-badge { position: absolute; top: 5px; right: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--bad); border: 2px solid var(--sheet); }
+.dot-badge.inline { position: static; display: inline-block; margin-right: 6px; vertical-align: middle; }
+.navitem .ct { display: inline-flex; align-items: center; }
+
+/* Caixas dentro do texto (Macete, Cai em prova, Atenção, Exemplo) */
+.read blockquote { margin: 0 0 1em; padding: 12px 16px; border-radius: 10px; background: var(--soft); border-left: 4px solid var(--muted); font-size: .96em; line-height: 1.6; }
+.read blockquote > *:last-child { margin-bottom: 0; }
+.read blockquote p { margin: 0 0 .5em; }
+.read blockquote strong:first-child { background: none; font-family: var(--f-display); font-size: .78em; letter-spacing: .07em; text-transform: uppercase; }
+.read blockquote.tip { background: var(--ok-soft); border-color: var(--ok); }
+.read blockquote.tip strong:first-child { color: var(--ok); }
+.read blockquote.exam { background: var(--accent-soft); border-color: var(--accent); }
+.read blockquote.exam strong:first-child { color: var(--accent); }
+.read blockquote.warn { background: var(--bad-soft); border-color: var(--bad); }
+.read blockquote.warn strong:first-child { color: var(--bad); }
+.read h4 { font-family: var(--f-display); font-size: 1.02em; font-weight: 800; letter-spacing: -.01em; margin: 1.3em 0 .4em; }
+.read h4:first-child { margin-top: 0; }
+
+/* Início renovado */
+.hero { position: relative; padding: clamp(20px, 4vw, 34px); border-radius: 18px; background: linear-gradient(135deg, var(--accent-soft), var(--sheet) 70%); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.hero h1 { max-width: 20ch; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.stat { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 12px; background: var(--sheet); border: 1px solid var(--line); }
+.stat b { font-size: 22px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; color: var(--muted); }
+.cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-radius: 14px; background: var(--ink); color: var(--paper); }
+.cta div { display: flex; flex-direction: column; min-width: 0; }
+.cta b { font-size: 16px; }
+.cta span { font-size: 13.5px; opacity: .8; }
+.cta .btn { background: var(--paper); color: var(--ink); }
+.reviewlist { display: flex; flex-direction: column; gap: 8px; }
+.reviewlist .hit b { font-size: 15px; }
+
+/* Cabeçalho de matéria e leitura */
+.msub { display: flex; align-items: center; gap: 12px; max-width: 420px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.msub .bar { flex: 1; height: 6px; }
+.msub .bar > i { background: var(--tab); }
+.sheet { border-radius: 16px; box-shadow: var(--shadow); }
+.read-meta { display: flex; gap: 10px; align-items: center; color: var(--muted); font-size: 12.5px; }
+.btn.fav { background: var(--sheet); border-color: var(--line); color: var(--muted); }
+.btn.fav.on { background: var(--hl); color: var(--ink); border-color: transparent; }
+
+/* Configurações */
+.cfg { display: flex; flex-direction: column; gap: 16px; max-width: 760px; }
+.card { display: flex; flex-direction: column; gap: 14px; padding: clamp(16px, 3vw, 22px); border-radius: 16px; background: var(--sheet); border: 1px solid var(--line); }
+.card h2 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
+.card h3 { margin: 0; font-size: 12px; font-family: var(--f-mono); font-weight: 500; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.card p { margin: 0; font-size: 14px; color: var(--muted); }
+.themegrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+.themeopt { display: flex; flex-direction: column; gap: 6px; padding: 6px; border-radius: 12px; border: 2px solid var(--line); background: transparent; cursor: pointer; text-align: left; }
+.themeopt[aria-pressed="true"] { border-color: var(--accent); }
+.themeopt .sw { display: flex; flex-direction: column; justify-content: space-between; height: 58px; padding: 8px; border-radius: 8px; border: 1px solid rgba(128, 128, 128, .3); }
+.themeopt .sw i { display: block; height: 5px; border-radius: 3px; }
+.themeopt .sw i:nth-child(1) { width: 70%; } .themeopt .sw i:nth-child(2) { width: 45%; opacity: .55; }
+.themeopt .sw b { align-self: flex-start; width: 16px; height: 16px; border-radius: 50%; }
+.themeopt span.nm { font-size: 12.5px; font-weight: 600; padding: 0 2px 2px; }
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.swatch { width: 38px; height: 38px; border-radius: 50%; border: 3px solid var(--sheet); box-shadow: 0 0 0 2px var(--line); cursor: pointer; }
+.swatch[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--ink); }
+.swatch.none { background: var(--soft); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--muted); }
+.seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 10px; background: var(--soft); flex-wrap: wrap; }
+.seg button { padding: 7px 12px; border: 0; border-radius: 8px; background: transparent; cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--sheet); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .18); }
+.field { display: flex; flex-direction: column; gap: 8px; }
+.row2 { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.row2 > label { flex: 1; min-width: 0; }
+.row2 label { font-weight: 600; font-size: 14.5px; }
+.row2 small { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+input[type="date"], textarea.box { padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); font: inherit; }
+textarea.box { width: 100%; min-height: 90px; font-family: var(--f-mono); font-size: 12px; }
+.toggle { position: relative; width: 46px; height: 28px; flex: none; }
+.toggle input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.toggle i { position: absolute; inset: 0; border-radius: 99px; background: var(--line); transition: background .2s; pointer-events: none; }
+.toggle i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); transition: transform .2s; }
+.toggle input:checked + i { background: var(--accent); }
+.toggle input:checked + i::after { transform: translateX(18px); }
+.preview { padding: 14px 16px; border-radius: 12px; background: var(--paper); border: 1px dashed var(--line); }
+.status { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: var(--soft); font-size: 14px; line-height: 1.45; }
+.status[data-k="new"] { background: var(--accent-soft); }
+.status[data-k="ok"] { background: var(--ok-soft); }
+.status[data-k="err"] { background: var(--bad-soft); }
+.status .ic { flex: none; font-size: 18px; line-height: 1.2; }
+.status pre { margin: 6px 0 0; white-space: pre-wrap; font-family: var(--f-mono); font-size: 12px; color: var(--muted); max-height: 160px; overflow: auto; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn.danger { background: var(--bad-soft); color: var(--bad); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { display: inline-block; animation: spin 1s linear infinite; }
+
 /* ---------- Celular ---------- */
 @media (max-width: 900px) {
   .app { grid-template-columns: minmax(0, 1fr); gap: 16px; padding-block: 12px 40px; }
@@ -244,8 +369,8 @@ h1, h2 { text-wrap: balance; }
     </button>
     <strong>Cargo 201</strong>
     <div class="topacts">
-      <button class="mini" type="button" id="topUpd" aria-label="Checar atualização">Atualizar</button>
-      <button class="mini primary" type="button" id="topLogin">Entrar</button>
+      <button class="iconbtn" type="button" id="topSearch" aria-label="Buscar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+      <button class="iconbtn" type="button" id="topCfg" aria-label="Configurações"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><i class="dot-badge" id="cfgDot" hidden></i></button>
     </div>
   </div>
   <div class="scrim" id="scrim"></div>
@@ -266,17 +391,11 @@ h1, h2 { text-wrap: balance; }
     </label>
     <div class="navgroup">
       <button class="navitem homebtn" id="navHome" type="button"><span class="dot" style="--tab: var(--ink)"></span><span class="nm">Visão geral</span><span class="ct" id="navHomeCt"></span></button>
+      <button class="navitem" id="navSim" type="button"><span class="dot" style="--tab: var(--accent)"></span><span class="nm">Simulado misto</span><span class="ct">20 questões</span></button>
+      <button class="navitem" id="navCfg" type="button"><span class="dot" style="--tab: var(--muted)"></span><span class="nm">Configurações</span><span class="ct"><i class="dot-badge inline" id="cfgDot2" hidden></i><span id="appVer"></span></span></button>
     </div>
     <div class="navgroup" id="navComum"><h3>Conhecimentos comuns</h3></div>
     <div class="navgroup" id="navEsp"><h3>Conhecimentos específicos</h3></div>
-    <div class="sidefoot">
-      <div class="sizectl"><span>Tamanho do texto</span><button id="fsDown" type="button" aria-label="Diminuir texto">A−</button><button id="fsUp" type="button" aria-label="Aumentar texto">A+</button></div>
-      <div class="appbox">
-        <div class="row"><span>Versão <b id="appVer">dev</b></span><button class="mini" type="button" id="updBtn">Checar atualização</button></div>
-        <span id="updText"></span>
-        <button class="btn primary" type="button" id="updGet" hidden>Baixar e instalar</button>
-      </div>
-    </div>
   </aside>
 
   <main class="main" id="main"></main>
@@ -295,7 +414,7 @@ const store = {
     if (SYNCED.includes(k)) { try { localStorage.setItem('c201.updatedAt', String(Date.now())); } catch (e) {} scheduleCloud(); }
   }
 };
-const SYNCED = ['done', 'last', 'lastSeen', 'quiz'];
+const SYNCED = ['done', 'last', 'lastSeen', 'quiz', 'fav'];
 let cloudRef = null, writing = false, again = false, wt = null, applying = false;
 let done = new Set(store.get('done', []));
 let last = store.get('last', {});        // { materiaId: topicIndex }
@@ -314,6 +433,60 @@ function saveDone() { store.set('done', [...done]); }
 function applyFs() { document.documentElement.style.setProperty('--read-size', fs + 'rem'); }
 applyFs();
 
+/* ---------- Preferências: tema, cor, fonte, leitura ---------- */
+const THEMES = [
+  { id: 'auto', nome: 'Automático', bg: 'linear-gradient(135deg,#F3F5F8 50%,#0E121A 50%)', ink: '#888888', ac: '#2446C4' },
+  { id: 'light', nome: 'Claro', bg: '#F3F5F8', ink: '#18202F', ac: '#2446C4' },
+  { id: 'sepia', nome: 'Sépia', bg: '#F1E7D0', ink: '#3B2F20', ac: '#9A4A12' },
+  { id: 'dark', nome: 'Escuro', bg: '#0E121A', ink: '#E4E8EF', ac: '#86A2FF' },
+  { id: 'ocean', nome: 'Oceano', bg: '#0A1520', ink: '#DCE8F5', ac: '#5CC8FF' },
+  { id: 'forest', nome: 'Floresta', bg: '#0E1912', ink: '#E1EEE5', ac: '#6EE7A1' },
+  { id: 'amoled', nome: 'Preto total', bg: '#000000', ink: '#EDEDED', ac: '#8AB4FF' },
+  { id: 'contrast', nome: 'Alto contraste', bg: '#FFFFFF', ink: '#000000', ac: '#0A2FBF' },
+];
+const DARKS = ['dark', 'ocean', 'forest', 'amoled'];
+const ACCENTS = [
+  { id: 'azul', nome: 'Azul', l: '#2446C4', d: '#86A2FF' },
+  { id: 'violeta', nome: 'Violeta', l: '#6B3FD4', d: '#B79CFF' },
+  { id: 'verde', nome: 'Verde', l: '#157A4E', d: '#5BD69A' },
+  { id: 'laranja', nome: 'Laranja', l: '#C2540A', d: '#FFA566' },
+  { id: 'rosa', nome: 'Rosa', l: '#C2185B', d: '#FF8DB8' },
+  { id: 'turquesa', nome: 'Turquesa', l: '#0A7C86', d: '#5AD8E3' },
+];
+let prefs = Object.assign({ theme: 'auto', accent: '', font: 'serif', lh: 1.7, hl: true, auto: true, exam: '' }, store.get('prefs', {}));
+const darkMQ = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+const lum = h => { const n = parseInt(h.slice(1), 16); const c = [n >> 16 & 255, n >> 8 & 255, n & 255].map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }); return .2126 * c[0] + .7152 * c[1] + .0722 * c[2]; };
+function applyPrefs() {
+  const r = document.documentElement;
+  const th = prefs.theme === 'auto' ? (darkMQ && darkMQ.matches ? 'dark' : 'light') : prefs.theme;
+  r.dataset.theme = th; r.dataset.font = prefs.font; r.dataset.hl = prefs.hl ? 'on' : 'off';
+  r.style.setProperty('--read-lh', prefs.lh);
+  const acc = ACCENTS.find(a => a.id === prefs.accent);
+  if (acc && th !== 'contrast') {
+    const c = DARKS.includes(th) ? acc.d : acc.l;
+    r.style.setProperty('--accent', c);
+    r.style.setProperty('--accent-ink', lum(c) > .4 ? '#0E121A' : '#FFFFFF');
+    r.style.setProperty('--accent-soft', `color-mix(in srgb, ${c} 16%, var(--sheet))`);
+  } else ['--accent', '--accent-ink', '--accent-soft'].forEach(p => r.style.removeProperty(p));
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = getComputedStyle(r).getPropertyValue('--paper').trim() || '#F3F5F8';
+}
+function savePrefs() { store.set('prefs', prefs); applyPrefs(); }
+if (darkMQ && darkMQ.addEventListener) darkMQ.addEventListener('change', () => { if (prefs.theme === 'auto') applyPrefs(); });
+applyPrefs();
+
+/* sequência de dias estudados e revisão */
+let days = store.get('days', []);
+const dayKey = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+function markDay() { const k = dayKey(new Date()); if (!days.includes(k)) { days.push(k); days = days.slice(-400); store.set('days', days); } }
+function streak() {
+  const set = new Set(days), d = new Date();
+  if (!set.has(dayKey(d))) d.setDate(d.getDate() - 1);
+  let n = 0; while (set.has(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+let fav = new Set(store.get('fav', []));
+
 /* ---------- Índice lateral ---------- */
 function renderNav(current) {
   for (const [gid, bloco] of [['#navComum', 'Comum'], ['#navEsp', 'Específico']]) {
@@ -329,14 +502,25 @@ function renderNav(current) {
       g.appendChild(b);
     });
   }
-  $('#navHome').toggleAttribute('aria-current', current === 'inicio');
-  if (current === 'inicio') $('#navHome').setAttribute('aria-current', 'page');
+  [['#navHome', 'inicio'], ['#navSim', 'simulado'], ['#navCfg', 'config']].forEach(([id, v]) => { const e = $(id); if (current === v) e.setAttribute('aria-current', 'page'); else e.removeAttribute('aria-current'); });
   $('#navHomeCt').textContent = `${allDone()}/${TOTAL}`;
 }
 
 /* ---------- Início ---------- */
+function quizStats() {
+  let a = 0, r = 0;
+  DATA.forEach(m => { const st = quizState[m.id] || {}; Object.entries(st).forEach(([i, v]) => { if (m.quiz[i]) { a++; if (m.quiz[i].a === v) r++; } }); });
+  return { a, r };
+}
+function daysToExam() {
+  if (!prefs.exam) return null;
+  const d = Math.ceil((new Date(prefs.exam + 'T00:00:00') - new Date()) / 864e5);
+  return isNaN(d) || d < 0 ? null : d;
+}
 function renderHome() {
   const n = allDone(), pct = Math.round(n / TOTAL * 100);
+  const hr = new Date().getHours(), hi = hr < 5 ? 'Boa madrugada' : hr < 12 ? 'Bom dia' : hr < 18 ? 'Boa tarde' : 'Boa noite';
+  const qs = quizStats(), de = daysToExam(), sk = streak();
   let cont = '';
   if (lastSeen && BY[lastSeen.m] && BY[lastSeen.m].topics[lastSeen.t]) {
     const m = BY[lastSeen.m], t = m.topics[lastSeen.t];
@@ -349,21 +533,32 @@ function renderHome() {
       <div class="meta"><span>${t} tópicos · ${m.quiz.length} questões</span><span>${d}/${t}</span></div>
       <div class="bar"><i style="width:${Math.round(d / t * 100)}%"></i></div></button>`;
   };
+  const favs = [...fav].map(k => { const [m, i] = k.split(':'); return BY[m] && BY[m].topics[+i] ? { m, i: +i, t: BY[m].topics[+i] } : null; }).filter(Boolean);
+  const review = favs.length ? `<div class="sectionhead"><h2>Para revisar</h2><span class="eyebrow">${favs.length} marcado${favs.length > 1 ? 's' : ''}</span></div>
+    <div class="reviewlist">${favs.slice(0, 8).map(x => `<button type="button" class="hit" data-m="${x.m}" data-i="${x.i}" style="--tab:${tabVar(x.m)}"><span class="where"><i></i>${esc(BY[x.m].nome)} · tópico ${esc(x.t.num)}</span><b>${esc(x.t.title)}</b></button>`).join('')}</div>` : '';
   $('#main').innerHTML = `
     <section class="hero">
-      <span class="eyebrow">Assistente em Administração · Nível médio</span>
+      <span class="eyebrow">${hi} · Assistente em Administração · Nível médio</span>
       <h1>Tudo o que cai para o Cargo 201, num lugar só.</h1>
-      <p>Leia um tópico por vez, marque o que já estudou e teste o que aprendeu no fim de cada matéria. Os termos grifados são os que mais aparecem em prova.</p>
+      <p>Leia um tópico por vez, marque o que já estudou e teste o que aprendeu. Os termos grifados são os que mais aparecem em prova.</p>
       <div class="meter">
         <div class="row"><span class="big">${pct}%</span><span>${n} de ${TOTAL} tópicos estudados</span></div>
         <div class="bar"><i style="width:${pct}%"></i></div>
       </div>
     </section>
+    <div class="stats">
+      <div class="stat"><b>${sk}</b><span>${sk === 1 ? 'dia seguido' : 'dias seguidos'}</span></div>
+      <div class="stat"><b>${qs.a ? Math.round(qs.r / qs.a * 100) + '%' : '–'}</b><span>acertos nos testes${qs.a ? ` (${qs.r}/${qs.a})` : ''}</span></div>
+      <div class="stat"><b>${fav.size}</b><span>para revisar</span></div>
+      <div class="stat"><b>${de === null ? '–' : de}</b><span>${de === null ? 'defina a data da prova' : 'dias para a prova'}</span></div>
+    </div>
     ${cont}
+    <div class="cta"><div><b>Simulado misto</b><span>20 questões sorteadas de todas as matérias.</span></div><button class="btn" type="button" id="simBtn">Começar</button></div>
     <div class="sectionhead"><h2>Conhecimentos comuns</h2><span class="eyebrow">3 matérias</span></div>
     <div class="folders">${DATA.filter(m => m.bloco === 'Comum').map(folder).join('')}</div>
     <div class="sectionhead"><h2>Conhecimentos específicos</h2><span class="eyebrow">6 matérias</span></div>
     <div class="folders">${DATA.filter(m => m.bloco === 'Específico').map(folder).join('')}</div>
+    ${review}
     <div class="sectionhead"><h2>Antes de começar</h2></div>
     <div class="notes">
       <div class="note"><h3>O que mudou na retificação</h3>
@@ -375,10 +570,13 @@ function renderHome() {
         <p>Temas que aparecem em mais de uma matéria: <strong>Lei 14.133</strong>, <strong>agentes públicos</strong>, <strong>gestão documental</strong> e <strong>redação oficial</strong>. Raciocínio Lógico não cai para o seu cargo.</p></div>
     </div>`;
   document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  document.querySelectorAll('.hit').forEach(h => h.onclick = () => go(h.dataset.m, +h.dataset.i));
   const cb = $('#contBtn'); if (cb) cb.onclick = () => go(lastSeen.m, lastSeen.t);
+  $('#simBtn').onclick = () => { newSim(); go('simulado'); };
 }
 
 /* ---------- Matéria ---------- */
+const readMin = t => Math.max(1, Math.round(t.text.split(/\s+/).length / 190));
 function renderMateria(mid, ti) {
   const m = BY[mid];
   if (ti === undefined) ti = last[mid] ?? 0;
@@ -391,14 +589,17 @@ function renderMateria(mid, ti) {
   let body;
   if (isQuiz) body = quizHtml(m);
   else {
-    const t = m.topics[ti], isDone = done.has(key(mid, ti));
+    const t = m.topics[ti], k = key(mid, ti), isDone = done.has(k), isFav = fav.has(k);
     const hasNext = ti < m.topics.length - 1;
     body = `<article class="sheet" style="--tab:${tabVar(mid)}">
-      <div class="kicker"><span class="eyebrow">Tópico ${esc(t.num)} · ${ti + 1} de ${m.topics.length}</span><span class="eyebrow">${esc(m.nome)}</span></div>
+      <div class="kicker"><span class="eyebrow">Tópico ${esc(t.num)} · ${ti + 1} de ${m.topics.length}</span><span class="eyebrow">${readMin(t)} min de leitura</span></div>
       <h2>${esc(t.title)}</h2>
       <div class="read">${t.html}</div>
       <div class="sheetfoot">
-        <button class="btn ${isDone ? 'done' : 'ghost'}" type="button" id="doneBtn" aria-pressed="${isDone}">${isDone ? '✓ Estudado' : 'Marcar como estudado'}</button>
+        <div class="btnrow">
+          <button class="btn ${isDone ? 'done' : 'ghost'}" type="button" id="doneBtn" aria-pressed="${isDone}">${isDone ? '✓ Estudado' : 'Marcar como estudado'}</button>
+          <button class="btn fav${isFav ? ' on' : ''}" type="button" id="favBtn" aria-pressed="${isFav}">${isFav ? '★ Na revisão' : '☆ Revisar depois'}</button>
+        </div>
         <div class="nav">
           <button class="btn ghost" type="button" id="prevBtn" ${ti === 0 ? 'disabled' : ''}>← Anterior</button>
           <button class="btn primary" type="button" id="nextBtn">${hasNext ? 'Próximo →' : 'Fazer o teste →'}</button>
@@ -407,18 +608,20 @@ function renderMateria(mid, ti) {
   }
   $('#main').innerHTML = `
     <section class="mhead" style="--tab:${tabVar(mid)}">
-      <span class="tabchip">Conhecimento ${m.bloco.toLowerCase()} · ${d}/${m.topics.length} estudados</span>
+      <span class="tabchip">Conhecimento ${m.bloco.toLowerCase()}</span>
       <h1>${esc(m.nome)}</h1>
       ${m.lead ? `<p>${esc(m.lead)}</p>` : ''}
+      <div class="msub"><div class="bar"><i style="width:${Math.round(d / m.topics.length * 100)}%"></i></div><span>${d}/${m.topics.length} estudados</span></div>
     </section>
     <nav class="pills" aria-label="Tópicos">${pills}</nav>
     ${body}`;
   document.querySelectorAll('.pill').forEach(p => p.onclick = () => go(mid, p.dataset.i === 'quiz' ? 'quiz' : +p.dataset.i));
   if (isQuiz) { bindQuiz(m); return; }
-  $('#doneBtn').onclick = () => { const k = key(mid, ti); done.has(k) ? done.delete(k) : done.add(k); saveDone(); renderNav(mid); renderMateria(mid, ti); };
+  $('#doneBtn').onclick = () => { const k = key(mid, ti); done.has(k) ? done.delete(k) : (done.add(k), markDay()); saveDone(); renderNav(mid); renderMateria(mid, ti); };
+  $('#favBtn').onclick = () => { const k = key(mid, ti); fav.has(k) ? fav.delete(k) : fav.add(k); store.set('fav', [...fav]); renderMateria(mid, ti); };
   $('#prevBtn').onclick = () => go(mid, ti - 1);
   $('#nextBtn').onclick = () => {
-    done.add(key(mid, ti)); saveDone();
+    if (prefs.auto) { done.add(key(mid, ti)); markDay(); saveDone(); }
     go(mid, ti < m.topics.length - 1 ? ti + 1 : 'quiz');
   };
 }
@@ -447,12 +650,136 @@ function quizHtml(m) {
 }
 function bindQuiz(m) {
   document.querySelectorAll('.opt').forEach(b => b.onclick = () => {
-    quizState[m.id][b.dataset.q] = +b.dataset.o;
+    quizState[m.id][b.dataset.q] = +b.dataset.o; markDay();
     store.set('quiz', quizState);
     const y = window.scrollY; renderMateria(m.id, 'quiz'); window.scrollTo(0, y);
   });
   $('#resetQuiz').onclick = () => { quizState[m.id] = {}; store.set('quiz', quizState); renderMateria(m.id, 'quiz'); };
   $('#backTop').onclick = () => go(m.id, 0);
+}
+
+/* ---------- Simulado misto ---------- */
+let sim = null;
+function newSim() {
+  const pool = [];
+  DATA.forEach(m => m.quiz.forEach((q, i) => pool.push({ m: m.id, i, q })));
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  sim = { qs: pool.slice(0, Math.min(20, pool.length)), ans: {} };
+}
+function renderSimulado() {
+  if (!sim) newSim();
+  const L = 'ABCD', n = sim.qs.length;
+  const answered = Object.keys(sim.ans).length;
+  const right = Object.entries(sim.ans).filter(([i, a]) => sim.qs[i].q.a === a).length;
+  const qs = sim.qs.map((x, i) => {
+    const a = sim.ans[i];
+    const opts = x.q.opts.map((o, j) => {
+      let cls = '';
+      if (a !== undefined) { if (j === x.q.a) cls = ' right'; else if (j === a) cls = ' wrong'; }
+      return `<button type="button" class="opt${cls}" data-sq="${i}" data-o="${j}" ${a !== undefined ? 'disabled' : ''}><span>${L[j]}</span><span>${esc(o)}</span></button>`;
+    }).join('');
+    const exp = a === undefined ? '' : `<p class="exp">${a === x.q.a ? '<b class="r">Certo.</b>' : '<b class="w">Não foi dessa vez.</b>'} ${esc(x.q.exp)}</p>`;
+    return `<div class="q"><p class="stem"><b>${String(i + 1).padStart(2, '0')}</b>${esc(x.q.q)}</p><span class="tabchip" style="--tab:${tabVar(x.m)};align-self:flex-start">${esc(BY[x.m].nome)}</span><div class="opts">${opts}</div>${exp}</div>`;
+  }).join('');
+  let resumo = '';
+  if (answered === n) {
+    const by = {};
+    sim.qs.forEach((x, i) => { const o = by[x.m] || (by[x.m] = { t: 0, r: 0 }); o.t++; if (sim.ans[i] === x.q.a) o.r++; });
+    resumo = `<div class="card"><h2>Resultado: ${right} de ${n} (${Math.round(right / n * 100)}%)</h2>
+      <p>${Object.entries(by).map(([id, o]) => `${esc(BY[id].nome)}: ${o.r}/${o.t}`).join(' · ')}</p></div>`;
+  }
+  $('#main').innerHTML = `<section class="mhead"><span class="tabchip" style="--tab:var(--accent);color:var(--accent-ink)">Simulado</span><h1>Simulado misto</h1>
+    <p>${n} questões sorteadas de todas as matérias. ${answered ? `${right} de ${answered} acertos até agora.` : 'Responda e veja o gabarito na hora.'}</p></section>
+    ${resumo}
+    <article class="sheet"><div class="qlist">${qs}</div>
+      <div class="sheetfoot"><button class="btn ghost" type="button" id="simNew">Novo simulado</button><div class="nav"><button class="btn primary" type="button" id="simHome">Voltar ao início</button></div></div></article>`;
+  document.querySelectorAll('[data-sq]').forEach(b => b.onclick = () => {
+    sim.ans[b.dataset.sq] = +b.dataset.o; markDay();
+    const y = window.scrollY; renderSimulado(); window.scrollTo(0, y);
+  });
+  $('#simNew').onclick = () => { newSim(); renderSimulado(); window.scrollTo(0, 0); };
+  $('#simHome').onclick = () => go('inicio');
+}
+
+/* ---------- Configurações ---------- */
+let confirmReset = false;
+function renderConfig() {
+  const on = !!(auth && auth.token);
+  const tiles = THEMES.map(t => `<button type="button" class="themeopt" data-theme-pick="${t.id}" aria-pressed="${prefs.theme === t.id}"><span class="sw" style="background:${t.bg};color:${t.ink}"><i style="background:${t.ink}"></i><i style="background:${t.ink}"></i><b style="background:${t.ac}"></b></span><span class="nm">${t.nome}</span></button>`).join('');
+  const swatches = ACCENTS.map(a => `<button type="button" class="swatch" data-accent="${a.id}" aria-label="${a.nome}" title="${a.nome}" aria-pressed="${prefs.accent === a.id}" style="background:${a.l}"></button>`).join('')
+    + `<button type="button" class="swatch none" data-accent="" aria-label="Cor do tema" title="Cor do tema" aria-pressed="${!prefs.accent}">Tema</button>`;
+  const seg = (name, opts, cur) => `<div class="seg" role="group">${opts.map(([v, l]) => `<button type="button" data-${name}="${v}" aria-pressed="${String(cur) === String(v)}">${l}</button>`).join('')}</div>`;
+  const tog = (id, label, sub, checked) => `<div class="row2"><label for="${id}">${label}<small>${sub}</small></label><span class="toggle"><input type="checkbox" id="${id}" ${checked ? 'checked' : ''}><i></i></span></div>`;
+  const sync = $('#syncText') ? $('#syncText').textContent : '';
+  $('#main').innerHTML = `<section class="mhead"><span class="eyebrow">Ajustes</span><h1>Configurações</h1></section>
+  <div class="cfg">
+    <section class="card"><h2>Aparência</h2>
+      <div class="field"><h3>Tema</h3><div class="themegrid">${tiles}</div></div>
+      <div class="field"><h3>Cor de destaque</h3><div class="swatches">${swatches}</div></div>
+    </section>
+    <section class="card"><h2>Leitura</h2>
+      <div class="field"><h3>Tamanho do texto</h3><input type="range" id="fsRange" min="0.9375" max="1.5" step="0.0625" value="${fs}" aria-label="Tamanho do texto"></div>
+      <div class="field"><h3>Fonte</h3>${seg('font', [['serif', 'Com serifa'], ['sans', 'Sem serifa']], prefs.font)}</div>
+      <div class="field"><h3>Espaçamento entre linhas</h3>${seg('lh', [[1.5, 'Compacto'], [1.7, 'Normal'], [1.95, 'Aberto']], prefs.lh)}</div>
+      ${tog('hlTog', 'Grifar os termos importantes', 'Marca em amarelo o que mais cai em prova.', prefs.hl)}
+      <div class="preview"><div class="read"><p>Prévia: a <strong>Lei 14.133</strong> trouxe o pregão e a concorrência como modalidades de licitação.</p></div></div>
+    </section>
+    <section class="card"><h2>Estudo</h2>
+      ${tog('autoTog', 'Marcar como estudado ao avançar', 'Ao tocar em "Próximo", o tópico atual conta como estudado.', prefs.auto)}
+      <div class="row2"><label for="examDate">Data da prova<small>Mostra a contagem regressiva no início.</small></label><input type="date" id="examDate" value="${esc(prefs.exam || '')}"></div>
+    </section>
+    <section class="card"><h2>Conta GitHub</h2>
+      ${on ? `<div class="who" style="display:flex;gap:12px;align-items:center"><img src="${esc(auth.avatar || '')}" alt="" width="40" height="40" style="border-radius:50%"><div><b>@${esc(auth.login || 'github')}</b><p>${esc(sync)}</p></div></div>
+        <div class="btnrow"><button class="btn ghost" type="button" id="cfgSync">Sincronizar agora</button><button class="btn ghost" type="button" id="cfgOut">Sair</button></div>`
+      : `<p>${isNative && !CFG.clientId ? 'O login ainda não foi configurado nesta versão.' : 'Entre para salvar o progresso num Gist secreto da sua conta e continuar em qualquer aparelho.'}</p>
+        <div class="btnrow"><button class="btn primary" type="button" id="cfgIn" ${isNative && !CFG.clientId ? 'disabled' : ''}>Entrar com GitHub</button></div>`}
+    </section>
+    <section class="card"><h2>Atualização do app</h2><div id="updCard"></div></section>
+    <section class="card"><h2>Seus dados</h2>
+      <p>O progresso fica salvo neste aparelho. Você pode guardar uma cópia ou levar para outro aparelho.</p>
+      <div class="btnrow"><button class="btn ghost" type="button" id="expBtn">Copiar cópia do progresso</button><button class="btn ghost" type="button" id="impBtn">Restaurar de uma cópia</button></div>
+      <textarea class="box" id="dataBox" placeholder="Cole aqui a cópia para restaurar" hidden></textarea>
+      <div class="btnrow"><button class="btn danger" type="button" id="rstBtn">Apagar todo o progresso</button></div>
+    </section>
+    <section class="card"><h2>Sobre</h2>
+      <p>Caderno 201 · versão ${esc(APP_VERSION === 'dev' ? 'web' : APP_VERSION)} · ${TOTAL} tópicos, ${DATA.reduce((s, m) => s + m.quiz.length, 0)} questões. O conteúdo é um resumo de estudo: confira sempre o edital e a legislação atualizada.</p>
+      ${CFG.repo ? `<p><a href="https://github.com/${esc(CFG.repo)}" target="_blank" rel="noopener" style="color:var(--accent)">github.com/${esc(CFG.repo)}</a></p>` : ''}
+    </section>
+  </div>`;
+  const q = s => document.querySelectorAll(s);
+  q('[data-theme-pick]').forEach(b => b.onclick = () => { prefs.theme = b.dataset.themePick; savePrefs(); renderConfig(); });
+  q('[data-accent]').forEach(b => b.onclick = () => { prefs.accent = b.dataset.accent; savePrefs(); renderConfig(); });
+  q('[data-font]').forEach(b => b.onclick = () => { prefs.font = b.dataset.font; savePrefs(); renderConfig(); });
+  q('[data-lh]').forEach(b => b.onclick = () => { prefs.lh = +b.dataset.lh; savePrefs(); renderConfig(); });
+  $('#fsRange').oninput = e => { fs = +e.target.value; store.set('fs', fs); applyFs(); };
+  $('#hlTog').onchange = e => { prefs.hl = e.target.checked; savePrefs(); };
+  $('#autoTog').onchange = e => { prefs.auto = e.target.checked; savePrefs(); };
+  $('#examDate').onchange = e => { prefs.exam = e.target.value; savePrefs(); };
+  const i = $('#cfgIn'); if (i) i.onclick = startLogin;
+  const o = $('#cfgOut'); if (o) o.onclick = () => { logout(); setSync('wait', ''); render(); };
+  const sy = $('#cfgSync'); if (sy) sy.onclick = async () => { toast('Sincronizando…'); await syncNow(); renderConfig(); };
+  $('#expBtn').onclick = async () => {
+    const txt = JSON.stringify(localState());
+    try { await navigator.clipboard.writeText(txt); toast('Cópia do progresso copiada.'); }
+    catch (e) { const b = $('#dataBox'); b.hidden = false; b.value = txt; b.select(); toast('Copie o texto da caixa.'); }
+  };
+  $('#impBtn').onclick = () => {
+    const b = $('#dataBox');
+    if (b.hidden) { b.hidden = false; b.focus(); toast('Cole a cópia e toque de novo em Restaurar.'); return; }
+    try {
+      const r = JSON.parse(b.value);
+      if (!r || !Array.isArray(r.done)) throw new Error('formato');
+      applyRemote({ ...r, updatedAt: Date.now() }); scheduleCloud(); toast('Progresso restaurado.');
+    } catch (e) { toast('Esse texto não parece uma cópia válida.'); }
+  };
+  $('#rstBtn').onclick = e => {
+    if (!confirmReset) { confirmReset = true; e.target.textContent = 'Tem certeza? Toque de novo para apagar'; setTimeout(() => { confirmReset = false; const x = $('#rstBtn'); if (x) x.textContent = 'Apagar todo o progresso'; }, 5000); return; }
+    confirmReset = false;
+    done = new Set(); last = {}; lastSeen = null; quizState = {}; fav = new Set();
+    store.set('done', []); store.set('last', {}); store.set('lastSeen', null); store.set('quiz', {}); store.set('fav', []);
+    toast('Progresso apagado.'); render();
+  };
+  renderUpd();
 }
 
 /* ---------- Busca ---------- */
@@ -481,18 +808,18 @@ function renderSearch(q) {
 let route = { v: 'inicio' };
 function go(v, t) {
   route = { v, t };
-  if (BY[v]) { try { history.replaceState(null, '', '#' + v); } catch (e) {} } else { try { history.replaceState(null, '', '#inicio'); } catch (e) {} }
+  try { history.replaceState(null, '', '#' + (BY[v] || v === 'config' ? v : 'inicio')); } catch (e) {}
   render(); closeMenu(); window.scrollTo(0, 0);
 }
 function render() {
   if (BY[route.v]) { renderNav(route.v); renderMateria(route.v, route.t); }
+  else if (route.v === 'config') { renderNav('config'); renderConfig(); }
+  else if (route.v === 'simulado') { renderNav('simulado'); renderSimulado(); }
   else { renderNav('inicio'); renderHome(); }
 }
 $('#brand').onclick = () => go('inicio');
 $('#navHome').onclick = () => go('inicio');
 let qt; $('#q').addEventListener('input', e => { clearTimeout(qt); const v = e.target.value; qt = setTimeout(() => v.trim() ? renderSearch(v) : render(), 120); });
-$('#fsUp').onclick = () => { fs = Math.min(1.375, +(fs + .0625).toFixed(4)); store.set('fs', fs); applyFs(); };
-$('#fsDown').onclick = () => { fs = Math.max(.9375, +(fs - .0625).toFixed(4)); store.set('fs', fs); applyFs(); };
 
 function openMenu() { $('#side').classList.add('open'); $('#scrim').classList.add('open'); $('#menuBtn').setAttribute('aria-expanded', 'true'); }
 function closeMenu() { $('#side').classList.remove('open'); $('#scrim').classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded', 'false'); }
@@ -504,9 +831,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft') { const b = $('#prevBtn'); b && !b.disabled && b.click(); }
 });
 
-const h = (location.hash || '').slice(1);
-route = BY[h] ? { v: h } : { v: 'inicio' };
-render();
 
 /* ---------- Conta GitHub: login por código e progresso num Gist secreto ---------- */
 const CFG = window.APP_CONFIG || {};
@@ -538,7 +862,6 @@ function renderAccount() {
   $('#who').hidden = !on; $('#pitch').hidden = on;
   $('#loginBtn').hidden = on; $('#logoutBtn').hidden = !on; $('#syncBtn').hidden = !on;
   if (on) { $('#login').textContent = '@' + (auth.login || 'github'); if (auth.avatar) $('#avatar').src = auth.avatar; }
-  $('#topLogin').textContent = on ? '@' + (auth.login || 'conta') : 'Entrar';
   if (isNative && !CFG.clientId) { $('#loginBtn').disabled = true; $('#pitch').textContent = 'O login com GitHub ainda não foi configurado nesta versão. Seu progresso fica salvo neste aparelho.'; }
   else if (!isNative && !on) $('#pitch').textContent = 'Entre com o GitHub para ver aqui o mesmo progresso do app do celular.';
 }
@@ -555,17 +878,19 @@ async function gh(path, opts = {}) {
 
 function localState() {
   let u = 0; try { u = +localStorage.getItem('c201.updatedAt') || 0; } catch (e) {}
-  return { done: [...done].sort(), last, lastSeen, quiz: quizState, updatedAt: u };
+  return { done: [...done].sort(), fav: [...fav].sort(), last, lastSeen, quiz: quizState, updatedAt: u };
 }
 function applyRemote(r) {
   applying = true;
   done = new Set(Array.isArray(r.done) ? r.done : []);
   last = r.last || {}; lastSeen = r.lastSeen || null; quizState = r.quiz || {};
+  fav = new Set(Array.isArray(r.fav) ? r.fav : []);
   try {
     localStorage.setItem('c201.done', JSON.stringify([...done]));
     localStorage.setItem('c201.last', JSON.stringify(last));
     localStorage.setItem('c201.lastSeen', JSON.stringify(lastSeen));
     localStorage.setItem('c201.quiz', JSON.stringify(quizState));
+    localStorage.setItem('c201.fav', JSON.stringify([...fav]));
     localStorage.setItem('c201.updatedAt', String(r.updatedAt || Date.now()));
   } catch (e) {}
   applying = false;
@@ -634,7 +959,7 @@ async function syncNow() {
     if (!r) await pushRemote();
     else if (!synced) {
       // primeira vez desta conta neste aparelho: junta o que havia aqui com o que está no GitHub
-      const merged = { done: [...new Set([...(r.done || []), ...loc.done])].sort(),
+      const merged = { done: [...new Set([...(r.done || []), ...loc.done])].sort(), fav: [...new Set([...(r.fav || []), ...loc.fav])].sort(),
         last: Object.assign({}, r.last, loc.last), lastSeen: loc.lastSeen || r.lastSeen || null,
         quiz: Object.assign({}, r.quiz, loc.quiz), updatedAt: Date.now() };
       applyRemote(merged); await pushRemote();
@@ -749,47 +1074,92 @@ window.addEventListener('online', () => syncNow());
 
 /* ---------- Atualizações pelo GitHub Releases ---------- */
 const cmpVer = (a, b) => { const pa = a.split('.').map(Number), pb = b.split('.').map(Number); for (let i = 0; i < 3; i++) { const d = (pa[i] || 0) - (pb[i] || 0); if (d) return d; } return 0; };
-$('#appVer').textContent = APP_VERSION;
-let apkUrl = null;
+$('#appVer').textContent = APP_VERSION === 'dev' ? 'web' : 'v' + APP_VERSION;
 let toastT;
-function toast(msg) { const e = $('#toast'); e.textContent = msg; e.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('show'), 4000); }
-// avisa: texto no menu e, se pedido, aviso na tela; devolve true se há versão nova
-async function checkUpdate(silent, loud) {
-  const t = $('#updText');
-  const say = m => { t.textContent = m; if (loud) toast(m); };
-  if (!CFG.repo) { if (!silent) say('Repositório não configurado.'); return; }
-  if (!silent) say('Procurando versão nova…');
+function toast(msg) { const e = $('#toast'); e.textContent = msg; e.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('show'), 4200); }
+// k: idle | busy | ok | new | err
+let upd = { k: 'idle', msg: '', latest: '', apkUrl: '', page: '', notes: '', err: '', at: 0 };
+function renderUpd() {
+  const hasNew = upd.k === 'new';
+  ['#cfgDot', '#cfgDot2'].forEach(s => { const e = $(s); if (e) e.hidden = !hasNew; });
+  const el = $('#updCard'); if (!el) return;
+  const ic = { idle: 'i', busy: '<span class="spin">↻</span>', ok: '✓', new: '↓', err: '!' }[upd.k];
+  const ver = APP_VERSION === 'dev' ? 'web' : APP_VERSION;
+  const when = upd.at ? ` Verificado às ${new Date(upd.at).toTimeString().slice(0, 5)}.` : '';
+  let status;
+  if (!isNative) status = `<div class="status" data-k="ok"><span class="ic">✓</span><div>Você está usando a versão web, que é sempre a mais recente.${CFG.repo ? ` Para instalar o app no Android, <a href="https://github.com/${esc(CFG.repo)}/releases/latest" target="_blank" rel="noopener" style="color:var(--accent)">baixe o APK</a>.` : ''}</div></div>`;
+  else status = `<div class="status" data-k="${upd.k}"><span class="ic">${ic}</span><div>${esc(upd.msg || 'Toque em "Procurar atualização" para ver se há uma versão nova.')}${upd.k === 'ok' || upd.k === 'new' ? esc(when) : ''}
+    ${upd.k === 'new' && upd.notes ? `<pre>${esc(upd.notes)}</pre>` : ''}${upd.k === 'err' && upd.err ? `<pre>${esc(upd.err)}</pre>` : ''}</div></div>`;
+  el.innerHTML = `<div class="row2"><span>Versão instalada</span><b>${esc(ver)}</b></div>${status}
+    ${isNative ? `<div class="btnrow"><button class="btn ${hasNew ? 'ghost' : 'primary'}" type="button" id="updCheck" ${upd.k === 'busy' ? 'disabled' : ''}>${upd.k === 'busy' ? 'Procurando…' : 'Procurar atualização'}</button>
+      ${hasNew ? '<button class="btn primary" type="button" id="updGet">Baixar e instalar</button>' : ''}
+      ${hasNew && upd.page ? '<button class="btn ghost" type="button" id="updPage">Abrir página da versão</button>' : ''}</div>
+      ${hasNew ? '<p>Depois de baixar, abra o arquivo e toque em Instalar. Seu progresso continua.</p>' : ''}` : ''}`;
+  const c = $('#updCheck'); if (c) c.onclick = () => checkUpdate(true);
+  const g = $('#updGet'); if (g) g.onclick = () => { openExternal(upd.apkUrl); toast('Baixando… abra o arquivo quando terminar.'); };
+  const p = $('#updPage'); if (p) p.onclick = () => openExternal(upd.page);
+}
+async function fetchRelease() {
+  const url = `https://api.github.com/repos/${CFG.repo}/releases/latest`, hdr = { 'Accept': 'application/vnd.github+json' };
   try {
-    const r = await fetch(`https://api.github.com/repos/${CFG.repo}/releases/latest`, { headers: { 'Accept': 'application/vnd.github+json' }, cache: 'no-store' });
-    if (r.status === 404) { if (!silent) say('Nenhuma versão publicada ainda.'); return; }
-    if (!r.ok) throw new Error(r.status);
-    const rel = await r.json();
-    const latest = String(rel.tag_name || '').replace(/^v/, '');
-    const apk = (rel.assets || []).find(a => /\.apk$/i.test(a.name));
-    if (APP_VERSION !== 'dev' && latest && apk && cmpVer(latest, APP_VERSION) > 0) {
-      apkUrl = apk.browser_download_url;
-      say(`Versão ${latest} disponível. Toque em Baixar e instalar.`);
-      $('#updGet').hidden = false;
-      return true;
-    } else if (!silent) { say(`Você já está na versão mais recente (${APP_VERSION}).`); $('#updGet').hidden = true; }
-  } catch (e) { if (!silent) say('Não consegui verificar agora. Confira a internet.'); }
+    const ctl = window.AbortController ? new AbortController() : null;
+    const t = setTimeout(() => ctl && ctl.abort(), 15000);
+    try {
+      const r = await fetch(url, { headers: hdr, cache: 'no-store', signal: ctl ? ctl.signal : undefined });
+      return { status: r.status, data: r.ok ? await r.json() : null };
+    } finally { clearTimeout(t); }
+  } catch (e) {
+    // plano B no app: usa direto o plugin de rede do Capacitor
+    const H = CAP && CAP.Plugins && CAP.Plugins.CapacitorHttp;
+    if (isNative && H && H.get) { const r = await H.get({ url, headers: hdr }); return { status: r.status, data: r.status === 200 ? r.data : null }; }
+    throw e;
+  }
 }
-$('#updBtn').onclick = () => checkUpdate(false, true);
-// botões da barra superior (celular): abrem o menu na área certa
-$('#topLogin').onclick = () => {
-  if (!(auth && auth.token) && (!isNative || CFG.clientId)) startLogin();
-  else { openMenu(); $('#account').scrollIntoView({ block: 'nearest' }); }
-};
-$('#topUpd').onclick = async () => {
-  if (!isNative) { toast('A versão web é sempre a mais recente. O app Android atualiza dentro dele.'); return; }
-  if (await checkUpdate(false, true)) { openMenu(); $('.appbox').scrollIntoView({ block: 'nearest' }); }
-};
-$('#updGet').onclick = () => { if (apkUrl) { openExternal(apkUrl); $('#updText').textContent = 'Abra o arquivo baixado e toque em Instalar. Seu progresso continua.'; } };
-if (isNative) checkUpdate(true);
-else {
-  // versão web: atualiza sozinha; mostra onde baixar o app do celular
-  $('#appVer').textContent = 'web';
-  $('#updBtn').hidden = true;
-  if (CFG.repo) $('#updText').innerHTML = `Sempre atualizada. App para Android: <a href="https://github.com/${CFG.repo}/releases/latest" target="_blank" rel="noopener">baixar APK</a>.`;
+async function checkUpdate(manual) {
+  if (upd.k === 'busy') return;
+  if (!CFG.repo) { upd = { ...upd, k: 'err', msg: 'Repositório não configurado.' }; renderUpd(); return; }
+  const before = upd; upd = { ...upd, k: 'busy', msg: 'Procurando versão nova…', err: '' }; renderUpd();
+  try {
+    const r = await fetchRelease();
+    if (r.status === 404) upd = { k: 'ok', msg: 'Nenhuma versão publicada ainda.', at: Date.now() };
+    else if (!r.data) throw new Error('O GitHub respondeu com o código ' + r.status);
+    else {
+      const rel = r.data, latest = String(rel.tag_name || '').replace(/^v/, '');
+      const apk = (rel.assets || []).find(a => /\.apk$/i.test(a.name));
+      if (APP_VERSION !== 'dev' && latest && apk && cmpVer(latest, APP_VERSION) > 0)
+        upd = { k: 'new', msg: `Versão ${latest} disponível (você tem a ${APP_VERSION}).`, latest, apkUrl: apk.browser_download_url, page: rel.html_url || '', notes: String(rel.body || '').trim().slice(0, 600), at: Date.now() };
+      else upd = { k: 'ok', msg: `Você já está na versão mais recente (${APP_VERSION}).`, at: Date.now() };
+    }
+  } catch (e) {
+    upd = { k: 'err', msg: 'Não consegui verificar agora. Confira a internet e tente de novo.', err: String((e && e.message) || e), at: 0 };
+    if (!manual) upd = before.k === 'busy' ? { ...before, k: 'idle' } : before;
+  }
+  renderUpd();
+  if (manual) toast(upd.msg);
 }
+if (isNative) checkUpdate(false);
+renderUpd();
+
+const h0 = (location.hash || '').slice(1);
+route = BY[h0] || h0 === 'config' ? { v: h0 } : { v: 'inicio' };
+render();
+
+
+/* ---------- Botões da barra e do menu ---------- */
+$('#navCfg').onclick = () => go('config');
+$('#navSim').onclick = () => { if (!sim) newSim(); go('simulado'); };
+$('#topCfg').onclick = () => go('config');
+$('#topSearch').onclick = () => { openMenu(); setTimeout(() => $('#q').focus(), 260); };
+
+/* deslizar para os lados troca de tópico (sem marcar como estudado) */
+let tx = 0, ty = 0;
+$('#main').addEventListener('touchstart', e => { const t = e.changedTouches[0]; tx = t.clientX; ty = t.clientY; }, { passive: true });
+$('#main').addEventListener('touchend', e => {
+  if (!BY[route.v] || route.t === 'quiz' || e.target.closest('.tbl, input, textarea')) return;
+  const t = e.changedTouches[0], dx = t.clientX - tx, dy = t.clientY - ty;
+  if (Math.abs(dx) < 90 || Math.abs(dx) < Math.abs(dy) * 2) return;
+  const m = BY[route.v], ti = last[route.v] ?? 0;
+  if (dx < 0 && ti < m.topics.length - 1) go(route.v, ti + 1);
+  else if (dx > 0 && ti > 0) go(route.v, ti - 1);
+}, { passive: true });
 </script>

@@ -39,6 +39,9 @@ def md(s):
     out = re.sub(r'<table>', '<div class="tbl"><table>', out)
     out = re.sub(r'</table>', '</table></div>', out)
     out = re.sub(r'<a href="(http[^"]+)"', r'<a target="_blank" rel="noopener" href="\1"', out)
+    # caixas de destaque: > **Macete:** ... vira <blockquote class="tip">
+    for rotulo, cls in (('Macete', 'tip'), ('Cai em prova', 'exam'), ('Atenção', 'warn'), ('Exemplo', '')):
+        out = re.sub(r'<blockquote>(\s*<p><strong>' + re.escape(rotulo) + r')', r'<blockquote class="' + cls + r'">\1', out)
     return out
 
 
