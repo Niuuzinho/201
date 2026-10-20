@@ -1,0 +1,8 @@
+{
+  "appId": "io.github.niuuzinho.caderno201",
+  "appName": "Caderno 201",
+  "webDir": "www",
+  "plugins": {
+    "CapacitorHttp": { "enabled": true }
+  }
+}

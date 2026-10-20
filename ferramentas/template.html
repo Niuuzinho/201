@@ -1,0 +1,724 @@
+<title>Caderno do Cargo 201</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: fichário de estudo. Índice com abas coloridas à esquerda, folha de leitura à direita, um tópico por vez. */
+:root {
+  --paper: #F3F5F8;
+  --sheet: #FFFFFF;
+  --ink: #18202F;
+  --muted: #5A6476;
+  --line: #DCE1E9;
+  --soft: #E9EDF3;
+  --accent: #2446C4;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E3E9FB;
+  --hl: rgba(255, 210, 0, .5);
+  --ok: #157A4E;
+  --ok-soft: #DDF3E7;
+  --bad: #B83D12;
+  --bad-soft: #FBE6DC;
+  --tab-ink: #18202F;
+  --t-portugues: #FFD3A6;
+  --t-informatica: #A9E4F5;
+  --t-adm-publica: #C9BCFF;
+  --t-direito-adm: #FFC4C4;
+  --t-administracao: #B8EFC6;
+  --t-gestao-pessoas: #FDC2DD;
+  --t-materiais: #FFE88F;
+  --t-arquivologia: #CFE6A0;
+  --t-atendimento: #B5D4FF;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-read: "Literata", Georgia, "Times New Roman", serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --read-size: 1.0625rem;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0E121A; --sheet: #161B26; --ink: #E4E8EF; --muted: #9AA3B4; --line: #283041; --soft: #1D2330;
+    --accent: #86A2FF; --accent-ink: #0E121A; --accent-soft: #1F2A4A; --hl: rgba(250, 204, 21, .26);
+    --ok: #5BD69A; --ok-soft: #12301F; --bad: #FF9A6B; --bad-soft: #3A1E12; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0E121A; --sheet: #161B26; --ink: #E4E8EF; --muted: #9AA3B4; --line: #283041; --soft: #1D2330;
+  --accent: #86A2FF; --accent-ink: #0E121A; --accent-soft: #1F2A4A; --hl: rgba(250, 204, 21, .26);
+  --ok: #5BD69A; --ok-soft: #12301F; --bad: #FF9A6B; --bad-soft: #3A1E12; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--paper); color: var(--ink); font-family: var(--f-display); font-size: 15px; line-height: 1.5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--paper); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+.app {
+  display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 32px;
+  max-width: 1240px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 48px;
+}
+
+/* ---------- Índice ---------- */
+.side { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; max-height: calc(100vh - 48px); overflow-y: auto; display: flex; flex-direction: column; gap: 18px; padding-right: 4px; }
+.brand { display: flex; flex-direction: column; gap: 2px; text-decoration: none; color: inherit; cursor: pointer; background: none; border: 0; text-align: left; padding: 0; }
+.brand small { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.brand strong { font-weight: 800; font-size: 22px; letter-spacing: -.02em; line-height: 1.1; }
+.search { position: relative; }
+.search input { width: 100%; padding: 10px 12px 10px 34px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--sheet); color: var(--ink); font: inherit; }
+.search input::placeholder { color: var(--muted); }
+.search svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; stroke: var(--muted); fill: none; stroke-width: 2; }
+.navgroup { display: flex; flex-direction: column; gap: 4px; }
+.navgroup h3 { margin: 0 0 4px; font-family: var(--f-mono); font-weight: 500; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.navitem { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; }
+.navitem:hover { background: var(--soft); }
+.navitem[aria-current="page"] { background: var(--sheet); box-shadow: 0 0 0 1px var(--line); }
+.navitem .dot { width: 12px; height: 12px; border-radius: 3px; background: var(--tab); }
+.navitem .nm { font-weight: 500; font-size: 14px; line-height: 1.25; }
+.navitem .ct { font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.navitem .ct.full { color: var(--ok); }
+.homebtn { font-weight: 500; }
+.sidefoot { font-size: 12.5px; color: var(--muted); display: flex; flex-direction: column; gap: 8px; }
+.sync { display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; }
+.sync i { flex: none; width: 8px; height: 8px; margin-top: 5px; border-radius: 50%; background: var(--muted); }
+.sync[data-state="ok"] i { background: var(--ok); }
+.sync[data-state="saving"] i { background: var(--accent); }
+.sync[data-state="err"] i { background: var(--bad); }
+.account { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: var(--radius); background: var(--sheet); border: 1px solid var(--line); }
+.account .who { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.account .who > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.account img { width: 36px; height: 36px; border-radius: 50%; background: var(--soft); flex: none; }
+.account b { font-size: 15px; overflow-wrap: anywhere; }
+.account .sync { font-size: 12.5px; color: var(--muted); }
+.account .pitch { margin: 0; font-size: 13.5px; color: var(--muted); }
+.account .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.account .btn { padding: 8px 14px; }
+.mini { padding: 6px 10px; border: 1px solid var(--line); background: var(--sheet); border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 500; }
+.appbox { display: flex; flex-direction: column; gap: 8px; }
+.appbox .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.code { font-family: var(--f-mono); font-size: clamp(30px, 8vw, 44px); font-weight: 500; letter-spacing: .12em; padding: 14px 18px; border-radius: var(--radius); background: var(--soft); align-self: flex-start; user-select: all; }
+.steps { margin: 0; padding-left: 1.3em; font-family: var(--f-read); font-size: var(--read-size); line-height: 1.7; }
+.sizectl { display: flex; align-items: center; gap: 6px; }
+.sizectl button { width: 32px; height: 28px; border: 1px solid var(--line); background: var(--sheet); border-radius: 6px; cursor: pointer; font-weight: 700; }
+
+/* ---------- Barra superior (celular) ---------- */
+.topbar { display: none; }
+.scrim { display: none; }
+
+/* ---------- Área principal ---------- */
+.main { min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+.eyebrow { font-family: var(--f-mono); font-size: 11.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+h1, h2 { text-wrap: balance; }
+
+/* Início */
+.hero { display: flex; flex-direction: column; gap: 14px; padding-top: 8px; }
+.hero h1 { margin: 0; font-weight: 800; font-size: clamp(30px, 4.6vw, 46px); line-height: 1.02; letter-spacing: -.035em; max-width: 18ch; }
+.hero p { margin: 0; max-width: 60ch; color: var(--muted); font-size: 16px; }
+.meter { display: flex; flex-direction: column; gap: 8px; max-width: 560px; }
+.meter .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-variant-numeric: tabular-nums; }
+.meter .big { font-weight: 800; font-size: 28px; letter-spacing: -.02em; }
+.bar { height: 10px; border-radius: 99px; background: var(--soft); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .4s ease; }
+.continue { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: var(--radius); background: var(--accent-soft); }
+.continue div { display: flex; flex-direction: column; min-width: 0; }
+.continue b { font-size: 15.5px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border-radius: 8px; border: 1px solid transparent; font-weight: 700; cursor: pointer; text-decoration: none; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: var(--sheet); border-color: var(--line); }
+.btn.done { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+.btn:disabled { opacity: .4; cursor: default; }
+
+.sectionhead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 10px; }
+.sectionhead h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.folders { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 22px 16px; }
+.folder { position: relative; display: flex; flex-direction: column; gap: 10px; padding: 16px; padding-top: 18px; border-radius: 0 var(--radius) var(--radius) var(--radius); background: var(--sheet); border: 1px solid var(--line); cursor: pointer; text-align: left; margin-top: 14px; transition: transform .15s ease, box-shadow .15s ease; }
+.folder::before { content: attr(data-tab); position: absolute; left: -1px; top: -24px; height: 24px; padding: 3px 12px 0; border-radius: 8px 8px 0 0; background: var(--tab); color: var(--tab-ink); font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 500; }
+.folder:hover { transform: translateY(-2px); box-shadow: 0 6px 18px -10px rgba(10, 20, 40, .35); }
+.folder h3 { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.2; letter-spacing: -.01em; }
+.folder .meta { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.folder .bar { height: 6px; }
+.folder .bar > i { background: var(--ink); }
+
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.note { padding: 16px 18px; border-radius: var(--radius); border: 1px dashed var(--line); display: flex; flex-direction: column; gap: 8px; }
+.note h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.note p, .note ul { margin: 0; font-family: var(--f-read); font-size: 15px; line-height: 1.6; }
+.note ul { padding-left: 18px; }
+.note s { color: var(--bad); }
+.note ins { text-decoration: none; color: var(--bad); font-weight: 600; }
+
+/* Matéria */
+.mhead { display: flex; flex-direction: column; gap: 10px; }
+.tabchip { align-self: flex-start; padding: 3px 10px; border-radius: 6px; background: var(--tab); color: var(--tab-ink); font-family: var(--f-mono); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; font-weight: 500; }
+.mhead h1 { margin: 0; font-size: clamp(26px, 3.6vw, 36px); font-weight: 800; letter-spacing: -.03em; line-height: 1.05; }
+.mhead p { margin: 0; color: var(--muted); max-width: 62ch; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { min-width: 38px; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--sheet); cursor: pointer; font-family: var(--f-mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+.pill.done { background: var(--ok-soft); border-color: transparent; color: var(--ok); }
+.pill[aria-current="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.pill.quiz { font-family: var(--f-display); font-weight: 700; }
+
+.sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(18px, 4vw, 40px); display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.sheet .kicker { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sheet h2 { margin: 0; font-size: clamp(22px, 2.8vw, 28px); font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+.read { font-family: var(--f-read); font-size: var(--read-size); line-height: 1.7; max-width: 68ch; min-width: 0; }
+.read > * { margin: 0 0 1em; }
+.read > *:last-child { margin-bottom: 0; }
+.read ul, .read ol { padding-left: 1.3em; }
+.read li { margin-bottom: .45em; }
+.read li > p { margin: 0; }
+.read strong { font-weight: 600; background: linear-gradient(transparent 58%, var(--hl) 58%); padding: 0 1px; }
+.read em { font-style: italic; }
+.read a { color: var(--accent); }
+.read code { font-family: var(--f-mono); font-size: .88em; background: var(--soft); padding: 1px 5px; border-radius: 4px; }
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; max-width: 100%; }
+.read table { border-collapse: collapse; width: 100%; font-size: .9em; line-height: 1.45; }
+.read th { text-align: left; font-family: var(--f-display); font-weight: 700; font-size: .86em; letter-spacing: .02em; background: var(--soft); }
+.read th, .read td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.read tr:last-child td { border-bottom: 0; }
+.read td:first-child { font-weight: 600; }
+.read mark { background: var(--hl); color: inherit; padding: 0 1px; border-radius: 2px; }
+.sheetfoot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding-top: 18px; border-top: 1px solid var(--line); }
+.sheetfoot .nav { display: flex; gap: 8px; }
+
+/* Quiz */
+.qlist { display: flex; flex-direction: column; gap: 22px; }
+.q { display: flex; flex-direction: column; gap: 10px; }
+.q p.stem { margin: 0; font-family: var(--f-read); font-size: var(--read-size); line-height: 1.55; }
+.q p.stem b { font-family: var(--f-mono); font-weight: 500; font-size: .8em; color: var(--muted); margin-right: 6px; }
+.opts { display: grid; gap: 6px; }
+.opt { display: flex; gap: 10px; align-items: flex-start; text-align: left; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--sheet); cursor: pointer; font-size: 15px; }
+.opt span:first-child { font-family: var(--f-mono); color: var(--muted); }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt:disabled { cursor: default; }
+.opt.right { background: var(--ok-soft); border-color: var(--ok); }
+.opt.wrong { background: var(--bad-soft); border-color: var(--bad); }
+.exp { margin: 0; font-size: 14px; padding: 10px 12px; border-radius: 8px; background: var(--soft); }
+.exp b.r { color: var(--ok); } .exp b.w { color: var(--bad); }
+.score { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; align-items: center; font-variant-numeric: tabular-nums; }
+
+/* Busca */
+.results { display: flex; flex-direction: column; gap: 10px; }
+.hit { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: var(--radius); background: var(--sheet); border: 1px solid var(--line); text-align: left; cursor: pointer; }
+.hit:hover { border-color: var(--accent); }
+.hit .where { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
+.hit .where i { width: 10px; height: 10px; border-radius: 3px; background: var(--tab); }
+.hit b { font-size: 15.5px; }
+.hit p { margin: 0; font-family: var(--f-read); font-size: 14px; color: var(--muted); }
+.hit mark { background: var(--hl); color: var(--ink); }
+.empty { color: var(--muted); }
+
+/* ---------- Celular ---------- */
+@media (max-width: 900px) {
+  .app { grid-template-columns: minmax(0, 1fr); gap: 16px; padding-block: 12px 40px; }
+  .topbar { display: flex; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; background: var(--paper); }
+  .topbar strong { font-weight: 800; font-size: 17px; letter-spacing: -.02em; }
+  .menubtn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--line); background: var(--sheet); border-radius: 8px; cursor: pointer; font-weight: 700; }
+  .side { position: fixed; z-index: 40; top: 0; bottom: 0; left: 0; width: min(320px, 86vw); max-height: none; padding: calc(env(safe-area-inset-top, 0px) + 18px) 16px calc(env(safe-area-inset-bottom, 0px) + 18px) max(16px, env(safe-area-inset-left, 0px)); background: var(--paper); border-right: 1px solid var(--line); transform: translateX(-105%); transition: transform .25s ease; }
+  .side.open { transform: none; }
+  .scrim { position: fixed; inset: 0; z-index: 35; background: rgba(8, 12, 20, .45); }
+  .scrim.open { display: block; }
+  .sheetfoot .nav { width: 100%; }
+  .sheetfoot .nav .btn { flex: 1; }
+  .sheetfoot > .btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <div class="topbar">
+    <button class="menubtn" id="menuBtn" aria-controls="side" aria-expanded="false">
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Matérias
+    </button>
+    <strong>Cargo 201</strong>
+  </div>
+  <div class="scrim" id="scrim"></div>
+
+  <aside class="side" id="side">
+    <button class="brand" id="brand" type="button">
+      <small>UFBA 2026 · Classe D</small>
+      <strong>Caderno do Cargo 201</strong>
+    </button>
+    <div class="account" id="account">
+      <div class="who" id="who" hidden><img id="avatar" alt=""><div><b id="login"></b><span class="sync" id="sync" data-state="wait"><i></i><span id="syncText"></span></span></div></div>
+      <p class="pitch" id="pitch">Entre com o GitHub para salvar seu progresso e continuar em qualquer aparelho.</p>
+      <div class="acts"><button class="btn primary" type="button" id="loginBtn">Entrar com GitHub</button><button class="mini" type="button" id="syncBtn" hidden>Sincronizar agora</button><button class="mini" type="button" id="logoutBtn" hidden>Sair</button></div>
+    </div>
+    <label class="search" for="q">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="q" type="search" placeholder="Buscar: crase, LGPD, PEPS…" autocomplete="off" aria-label="Buscar no conteúdo">
+    </label>
+    <div class="navgroup">
+      <button class="navitem homebtn" id="navHome" type="button"><span class="dot" style="--tab: var(--ink)"></span><span class="nm">Visão geral</span><span class="ct" id="navHomeCt"></span></button>
+    </div>
+    <div class="navgroup" id="navComum"><h3>Conhecimentos comuns</h3></div>
+    <div class="navgroup" id="navEsp"><h3>Conhecimentos específicos</h3></div>
+    <div class="sidefoot">
+      <div class="sizectl"><span>Tamanho do texto</span><button id="fsDown" type="button" aria-label="Diminuir texto">A−</button><button id="fsUp" type="button" aria-label="Aumentar texto">A+</button></div>
+      <div class="appbox">
+        <div class="row"><span>Versão <b id="appVer">dev</b></span><button class="mini" type="button" id="updBtn">Checar atualização</button></div>
+        <span id="updText"></span>
+        <button class="btn primary" type="button" id="updGet" hidden>Baixar e instalar</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main"></main>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const BY = Object.fromEntries(DATA.map(m => [m.id, m]));
+const TOTAL = DATA.reduce((s, m) => s + m.topics.length, 0);
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('c201.' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) {
+    try { localStorage.setItem('c201.' + k, JSON.stringify(v)); } catch (e) {}
+    if (SYNCED.includes(k)) { try { localStorage.setItem('c201.updatedAt', String(Date.now())); } catch (e) {} scheduleCloud(); }
+  }
+};
+const SYNCED = ['done', 'last', 'lastSeen', 'quiz'];
+let cloudRef = null, writing = false, again = false, wt = null, applying = false;
+let done = new Set(store.get('done', []));
+let last = store.get('last', {});        // { materiaId: topicIndex }
+let lastSeen = store.get('lastSeen', null); // { m, t }
+let fs = store.get('fs', 1.0625);
+let quizState = store.get('quiz', {}); // respostas do teste, por matéria
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const key = (m, i) => m + ':' + i;
+const countDone = m => BY[m].topics.reduce((s, _, i) => s + (done.has(key(m, i)) ? 1 : 0), 0);
+const allDone = () => DATA.reduce((s, m) => s + countDone(m.id), 0);
+const tabVar = id => `var(--t-${id})`;
+
+function saveDone() { store.set('done', [...done]); }
+function applyFs() { document.documentElement.style.setProperty('--read-size', fs + 'rem'); }
+applyFs();
+
+/* ---------- Índice lateral ---------- */
+function renderNav(current) {
+  for (const [gid, bloco] of [['#navComum', 'Comum'], ['#navEsp', 'Específico']]) {
+    const g = $(gid);
+    g.querySelectorAll('.navitem').forEach(n => n.remove());
+    DATA.filter(m => m.bloco === bloco).forEach(m => {
+      const n = countDone(m.id), t = m.topics.length;
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'navitem';
+      if (current === m.id) b.setAttribute('aria-current', 'page');
+      b.innerHTML = `<span class="dot" style="--tab:${tabVar(m.id)}"></span><span class="nm">${esc(m.nome)}</span><span class="ct${n === t ? ' full' : ''}">${n}/${t}</span>`;
+      b.onclick = () => go(m.id);
+      g.appendChild(b);
+    });
+  }
+  $('#navHome').toggleAttribute('aria-current', current === 'inicio');
+  if (current === 'inicio') $('#navHome').setAttribute('aria-current', 'page');
+  $('#navHomeCt').textContent = `${allDone()}/${TOTAL}`;
+}
+
+/* ---------- Início ---------- */
+function renderHome() {
+  const n = allDone(), pct = Math.round(n / TOTAL * 100);
+  let cont = '';
+  if (lastSeen && BY[lastSeen.m] && BY[lastSeen.m].topics[lastSeen.t]) {
+    const m = BY[lastSeen.m], t = m.topics[lastSeen.t];
+    cont = `<div class="continue"><div><span class="eyebrow">Continue de onde parou</span><b>${esc(m.nome)} · ${esc(t.num)}. ${esc(t.title)}</b></div><button class="btn primary" type="button" id="contBtn">Continuar</button></div>`;
+  }
+  const folder = m => {
+    const d = countDone(m.id), t = m.topics.length;
+    return `<button class="folder" type="button" data-go="${m.id}" data-tab="${m.bloco}" style="--tab:${tabVar(m.id)}">
+      <h3>${esc(m.nome)}</h3>
+      <div class="meta"><span>${t} tópicos · ${m.quiz.length} questões</span><span>${d}/${t}</span></div>
+      <div class="bar"><i style="width:${Math.round(d / t * 100)}%"></i></div></button>`;
+  };
+  $('#main').innerHTML = `
+    <section class="hero">
+      <span class="eyebrow">Assistente em Administração · Nível médio</span>
+      <h1>Tudo o que cai para o Cargo 201, num lugar só.</h1>
+      <p>Leia um tópico por vez, marque o que já estudou e teste o que aprendeu no fim de cada matéria. Os termos grifados são os que mais aparecem em prova.</p>
+      <div class="meter">
+        <div class="row"><span class="big">${pct}%</span><span>${n} de ${TOTAL} tópicos estudados</span></div>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+      </div>
+    </section>
+    ${cont}
+    <div class="sectionhead"><h2>Conhecimentos comuns</h2><span class="eyebrow">3 matérias</span></div>
+    <div class="folders">${DATA.filter(m => m.bloco === 'Comum').map(folder).join('')}</div>
+    <div class="sectionhead"><h2>Conhecimentos específicos</h2><span class="eyebrow">6 matérias</span></div>
+    <div class="folders">${DATA.filter(m => m.bloco === 'Específico').map(folder).join('')}</div>
+    <div class="sectionhead"><h2>Antes de começar</h2></div>
+    <div class="notes">
+      <div class="note"><h3>O que mudou na retificação</h3>
+        <ul>
+          <li>Português, itens 8 e 9: saíram as listas entre parênteses (<s>metáfora, metonímia…</s> e <s>voz ativa/passiva…</s>). Os itens continuam valendo.</li>
+          <li>Informática, item 4: agora é Office 365 <ins>ou versões recentes</ins>.</li>
+        </ul></div>
+      <div class="note"><h3>Onde focar</h3>
+        <p>Temas que aparecem em mais de uma matéria: <strong>Lei 14.133</strong>, <strong>agentes públicos</strong>, <strong>gestão documental</strong> e <strong>redação oficial</strong>. Raciocínio Lógico não cai para o seu cargo.</p></div>
+    </div>`;
+  document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  const cb = $('#contBtn'); if (cb) cb.onclick = () => go(lastSeen.m, lastSeen.t);
+}
+
+/* ---------- Matéria ---------- */
+function renderMateria(mid, ti) {
+  const m = BY[mid];
+  if (ti === undefined) ti = last[mid] ?? 0;
+  const isQuiz = ti === 'quiz';
+  if (!isQuiz) { ti = Math.max(0, Math.min(m.topics.length - 1, +ti || 0)); last[mid] = ti; store.set('last', last); lastSeen = { m: mid, t: ti }; store.set('lastSeen', lastSeen); }
+  const pills = m.topics.map((t, i) =>
+    `<button type="button" class="pill${done.has(key(mid, i)) ? ' done' : ''}" data-i="${i}" aria-current="${!isQuiz && i === ti}" title="${esc(t.title)}">${esc(t.num)}</button>`).join('')
+    + `<button type="button" class="pill quiz" data-i="quiz" aria-current="${isQuiz}">Teste rápido</button>`;
+  const d = countDone(mid);
+  let body;
+  if (isQuiz) body = quizHtml(m);
+  else {
+    const t = m.topics[ti], isDone = done.has(key(mid, ti));
+    const hasNext = ti < m.topics.length - 1;
+    body = `<article class="sheet" style="--tab:${tabVar(mid)}">
+      <div class="kicker"><span class="eyebrow">Tópico ${esc(t.num)} · ${ti + 1} de ${m.topics.length}</span><span class="eyebrow">${esc(m.nome)}</span></div>
+      <h2>${esc(t.title)}</h2>
+      <div class="read">${t.html}</div>
+      <div class="sheetfoot">
+        <button class="btn ${isDone ? 'done' : 'ghost'}" type="button" id="doneBtn" aria-pressed="${isDone}">${isDone ? '✓ Estudado' : 'Marcar como estudado'}</button>
+        <div class="nav">
+          <button class="btn ghost" type="button" id="prevBtn" ${ti === 0 ? 'disabled' : ''}>← Anterior</button>
+          <button class="btn primary" type="button" id="nextBtn">${hasNext ? 'Próximo →' : 'Fazer o teste →'}</button>
+        </div>
+      </div></article>`;
+  }
+  $('#main').innerHTML = `
+    <section class="mhead" style="--tab:${tabVar(mid)}">
+      <span class="tabchip">Conhecimento ${m.bloco.toLowerCase()} · ${d}/${m.topics.length} estudados</span>
+      <h1>${esc(m.nome)}</h1>
+      ${m.lead ? `<p>${esc(m.lead)}</p>` : ''}
+    </section>
+    <nav class="pills" aria-label="Tópicos">${pills}</nav>
+    ${body}`;
+  document.querySelectorAll('.pill').forEach(p => p.onclick = () => go(mid, p.dataset.i === 'quiz' ? 'quiz' : +p.dataset.i));
+  if (isQuiz) { bindQuiz(m); return; }
+  $('#doneBtn').onclick = () => { const k = key(mid, ti); done.has(k) ? done.delete(k) : done.add(k); saveDone(); renderNav(mid); renderMateria(mid, ti); };
+  $('#prevBtn').onclick = () => go(mid, ti - 1);
+  $('#nextBtn').onclick = () => {
+    done.add(key(mid, ti)); saveDone();
+    go(mid, ti < m.topics.length - 1 ? ti + 1 : 'quiz');
+  };
+}
+
+/* ---------- Teste rápido ---------- */
+function quizHtml(m) {
+  const st = quizState[m.id] || (quizState[m.id] = {});
+  const answered = Object.keys(st).length, right = Object.entries(st).filter(([i, a]) => m.quiz[i].a === a).length;
+  const L = 'ABCD';
+  const qs = m.quiz.map((q, i) => {
+    const a = st[i];
+    const opts = q.opts.map((o, j) => {
+      let cls = '';
+      if (a !== undefined) { if (j === q.a) cls = ' right'; else if (j === a) cls = ' wrong'; }
+      return `<button type="button" class="opt${cls}" data-q="${i}" data-o="${j}" ${a !== undefined ? 'disabled' : ''}><span>${L[j]}</span><span>${esc(o)}</span></button>`;
+    }).join('');
+    const exp = a === undefined ? '' : `<p class="exp">${a === q.a ? '<b class="r">Certo.</b>' : '<b class="w">Não foi dessa vez.</b>'} ${esc(q.exp)}</p>`;
+    return `<div class="q"><p class="stem"><b>${String(i + 1).padStart(2, '0')}</b>${esc(q.q)}</p><div class="opts">${opts}</div>${exp}</div>`;
+  }).join('');
+  return `<article class="sheet">
+    <div class="score"><h2>Teste rápido</h2><span class="eyebrow">${answered ? `${right} de ${answered} acertos` : `${m.quiz.length} questões`}</span></div>
+    <div class="qlist">${qs}</div>
+    <div class="sheetfoot"><button class="btn ghost" type="button" id="resetQuiz">Refazer o teste</button>
+      <div class="nav"><button class="btn primary" type="button" id="backTop">Voltar ao primeiro tópico</button></div></div>
+  </article>`;
+}
+function bindQuiz(m) {
+  document.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+    quizState[m.id][b.dataset.q] = +b.dataset.o;
+    store.set('quiz', quizState);
+    const y = window.scrollY; renderMateria(m.id, 'quiz'); window.scrollTo(0, y);
+  });
+  $('#resetQuiz').onclick = () => { quizState[m.id] = {}; store.set('quiz', quizState); renderMateria(m.id, 'quiz'); };
+  $('#backTop').onclick = () => go(m.id, 0);
+}
+
+/* ---------- Busca ---------- */
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const INDEX = [];
+DATA.forEach(m => m.topics.forEach((t, i) => INDEX.push({ m: m.id, i, t, hay: norm(t.title + ' ' + t.text) })));
+function renderSearch(q) {
+  const nq = norm(q.trim());
+  const hits = nq.length < 2 ? [] : INDEX.filter(x => x.hay.includes(nq));
+  const snip = x => {
+    const p = norm(x.t.text).indexOf(nq);
+    if (p < 0) return esc(x.t.text.slice(0, 140)) + '…';
+    const s = Math.max(0, p - 60), e = Math.min(x.t.text.length, p + nq.length + 90);
+    return (s ? '…' : '') + esc(x.t.text.slice(s, p)) + '<mark>' + esc(x.t.text.slice(p, p + nq.length)) + '</mark>' + esc(x.t.text.slice(p + nq.length, e)) + (e < x.t.text.length ? '…' : '');
+  };
+  $('#main').innerHTML = `<section class="mhead"><span class="eyebrow">Busca</span><h1>“${esc(q.trim())}”</h1>
+    <p>${hits.length ? `${hits.length} tópico${hits.length > 1 ? 's' : ''} encontrado${hits.length > 1 ? 's' : ''}.` : ''}</p></section>
+    <div class="results">${hits.length ? hits.map(x => `<button type="button" class="hit" data-m="${x.m}" data-i="${x.i}" style="--tab:${tabVar(x.m)}">
+      <span class="where"><i></i>${esc(BY[x.m].nome)} · tópico ${esc(x.t.num)}</span><b>${esc(x.t.title)}</b><p>${snip(x)}</p></button>`).join('')
+      : `<p class="empty">${nq.length < 2 ? 'Digite pelo menos 2 letras.' : 'Nada encontrado. Tente outra palavra, como “prazo”, “lei” ou “estoque”.'}</p>`}</div>`;
+  document.querySelectorAll('.hit').forEach(h => h.onclick = () => { $('#q').value = ''; go(h.dataset.m, +h.dataset.i); });
+  renderNav(null);
+}
+
+/* ---------- Navegação ---------- */
+let route = { v: 'inicio' };
+function go(v, t) {
+  route = { v, t };
+  if (BY[v]) { try { history.replaceState(null, '', '#' + v); } catch (e) {} } else { try { history.replaceState(null, '', '#inicio'); } catch (e) {} }
+  render(); closeMenu(); window.scrollTo(0, 0);
+}
+function render() {
+  if (BY[route.v]) { renderNav(route.v); renderMateria(route.v, route.t); }
+  else { renderNav('inicio'); renderHome(); }
+}
+$('#brand').onclick = () => go('inicio');
+$('#navHome').onclick = () => go('inicio');
+let qt; $('#q').addEventListener('input', e => { clearTimeout(qt); const v = e.target.value; qt = setTimeout(() => v.trim() ? renderSearch(v) : render(), 120); });
+$('#fsUp').onclick = () => { fs = Math.min(1.375, +(fs + .0625).toFixed(4)); store.set('fs', fs); applyFs(); };
+$('#fsDown').onclick = () => { fs = Math.max(.9375, +(fs - .0625).toFixed(4)); store.set('fs', fs); applyFs(); };
+
+function openMenu() { $('#side').classList.add('open'); $('#scrim').classList.add('open'); $('#menuBtn').setAttribute('aria-expanded', 'true'); }
+function closeMenu() { $('#side').classList.remove('open'); $('#scrim').classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded', 'false'); }
+$('#menuBtn').onclick = openMenu; $('#scrim').onclick = closeMenu;
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeMenu();
+  if (e.target.tagName === 'INPUT' || !BY[route.v] || route.t === 'quiz') return;
+  if (e.key === 'ArrowRight') { const b = $('#nextBtn'); b && b.click(); }
+  if (e.key === 'ArrowLeft') { const b = $('#prevBtn'); b && !b.disabled && b.click(); }
+});
+
+const h = (location.hash || '').slice(1);
+route = BY[h] ? { v: h } : { v: 'inicio' };
+render();
+
+/* ---------- Conta GitHub: login por código e progresso num Gist secreto ---------- */
+const CFG = window.APP_CONFIG || {};
+const APP_VERSION = window.APP_VERSION || 'dev';
+const GIST_FILE = 'caderno-201-progresso.json';
+const GIST_DESC = 'Caderno 201 · progresso (não apague)';
+const CAP = window.Capacitor;
+const isNative = !!CAP && ((CAP.isNativePlatform && CAP.isNativePlatform()) || (CAP.getPlatform && CAP.getPlatform() !== 'web'));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let auth = store.get('auth', null); // { token, login, avatar, gistId }
+let loginRun = 0;
+
+function saveAuth() { try { localStorage.setItem('c201.auth', JSON.stringify(auth)); } catch (e) {} }
+// No app, abre links no navegador do celular (aba do Chrome). Se o plugin falhar,
+// navegar para um site externo também faz o Capacitor abrir o navegador.
+function openExternal(url) {
+  if (!isNative) { window.open(url, '_blank', 'noopener'); return; }
+  let p = null;
+  try {
+    if (CAP.Plugins && CAP.Plugins.Browser && CAP.Plugins.Browser.open) p = CAP.Plugins.Browser.open({ url });
+    else if (CAP.registerPlugin) p = CAP.registerPlugin('Browser').open({ url });
+  } catch (e) { p = null; }
+  if (p && p.catch) p.catch(() => { location.href = url; });
+  else if (!p) location.href = url;
+}
+function setSync(state, text) { const s = $('#sync'); if (!s) return; s.dataset.state = state; $('#syncText').textContent = text; }
+function renderAccount() {
+  const on = !!(auth && auth.token);
+  $('#who').hidden = !on; $('#pitch').hidden = on;
+  $('#loginBtn').hidden = on; $('#logoutBtn').hidden = !on; $('#syncBtn').hidden = !on;
+  if (on) { $('#login').textContent = '@' + (auth.login || 'github'); if (auth.avatar) $('#avatar').src = auth.avatar; }
+  if (!CFG.clientId) { $('#loginBtn').disabled = true; $('#pitch').textContent = 'O login com GitHub ainda não foi configurado nesta versão. Seu progresso fica salvo neste aparelho.'; }
+}
+
+async function gh(path, opts = {}) {
+  const headers = { 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+  if (auth && auth.token) headers['Authorization'] = 'Bearer ' + auth.token;
+  if (opts.body) headers['Content-Type'] = 'application/json';
+  const r = await fetch('https://api.github.com' + path, { ...opts, headers, cache: 'no-store' });
+  if (r.status === 401) { const e = new Error('auth'); e.code = 'auth'; throw e; }
+  if (!r.ok) { const e = new Error('http ' + r.status); e.code = 'http'; e.status = r.status; throw e; }
+  return r.status === 204 ? null : r.json();
+}
+
+function localState() {
+  let u = 0; try { u = +localStorage.getItem('c201.updatedAt') || 0; } catch (e) {}
+  return { done: [...done].sort(), last, lastSeen, quiz: quizState, updatedAt: u };
+}
+function applyRemote(r) {
+  applying = true;
+  done = new Set(Array.isArray(r.done) ? r.done : []);
+  last = r.last || {}; lastSeen = r.lastSeen || null; quizState = r.quiz || {};
+  try {
+    localStorage.setItem('c201.done', JSON.stringify([...done]));
+    localStorage.setItem('c201.last', JSON.stringify(last));
+    localStorage.setItem('c201.lastSeen', JSON.stringify(lastSeen));
+    localStorage.setItem('c201.quiz', JSON.stringify(quizState));
+    localStorage.setItem('c201.updatedAt', String(r.updatedAt || Date.now()));
+  } catch (e) {}
+  applying = false;
+  const y = window.scrollY; render(); window.scrollTo(0, y);
+}
+
+async function findGist() {
+  if (auth.gistId) return auth.gistId;
+  for (let page = 1; page <= 5; page++) {
+    const list = await gh('/gists?per_page=100&page=' + page);
+    const g = list.find(x => x.files && x.files[GIST_FILE]);
+    if (g) return g.id;
+    if (list.length < 100) break;
+  }
+  return null;
+}
+async function pullRemote() {
+  const id = await findGist();
+  if (!id) return null;
+  let g;
+  try { g = await gh('/gists/' + id); }
+  catch (e) { if (e.status === 404) { auth.gistId = null; saveAuth(); return null; } throw e; }
+  auth.gistId = id; saveAuth();
+  const f = g.files && g.files[GIST_FILE];
+  if (!f) return null;
+  let content = f.content;
+  if (f.truncated) content = await (await fetch(f.raw_url, { cache: 'no-store' })).text();
+  try { return JSON.parse(content); } catch (e) { return null; }
+}
+async function pushRemote() {
+  const body = { description: GIST_DESC, files: { [GIST_FILE]: { content: JSON.stringify(localState(), null, 1) } } };
+  if (auth.gistId) {
+    try { await gh('/gists/' + auth.gistId, { method: 'PATCH', body: JSON.stringify(body) }); return; }
+    catch (e) { if (e.status !== 404) throw e; auth.gistId = null; }
+  }
+  const g = await gh('/gists', { method: 'POST', body: JSON.stringify({ ...body, public: false }) });
+  auth.gistId = g.id; saveAuth();
+}
+
+const OK_TEXT = 'Progresso salvo no GitHub';
+function syncError(e) {
+  if (e && e.code === 'auth') { logout(); setSync('err', 'Sessão expirada. Entre de novo.'); return; }
+  setSync('err', navigator.onLine === false ? 'Sem internet. Salvo no aparelho e envio depois.' : 'Não consegui falar com o GitHub. Salvo no aparelho.');
+}
+function scheduleCloud() {
+  if (!auth || !auth.token || applying) return;
+  setSync('saving', 'Salvando…');
+  clearTimeout(wt); wt = setTimeout(flush, 2000);
+}
+async function flush() {
+  if (!auth || !auth.token) return;
+  if (writing) { again = true; return; }
+  writing = true;
+  try { await pushRemote(); setSync('ok', OK_TEXT); } catch (e) { syncError(e); }
+  writing = false;
+  if (again) { again = false; flush(); }
+}
+let syncing = false;
+async function syncNow() {
+  if (!auth || !auth.token || syncing) return;
+  syncing = true; setSync('saving', 'Sincronizando…');
+  try {
+    const r = await pullRemote();
+    const loc = localState();
+    let synced = false; try { synced = localStorage.getItem('c201.syncedAs') === auth.login; } catch (e) {}
+    if (!r) await pushRemote();
+    else if (!synced) {
+      // primeira vez desta conta neste aparelho: junta o que havia aqui com o que está no GitHub
+      const merged = { done: [...new Set([...(r.done || []), ...loc.done])].sort(),
+        last: Object.assign({}, r.last, loc.last), lastSeen: loc.lastSeen || r.lastSeen || null,
+        quiz: Object.assign({}, r.quiz, loc.quiz), updatedAt: Date.now() };
+      applyRemote(merged); await pushRemote();
+    } else if ((r.updatedAt || 0) > loc.updatedAt) applyRemote(r);
+    else if ((r.updatedAt || 0) < loc.updatedAt) await pushRemote();
+    try { localStorage.setItem('c201.syncedAs', auth.login); } catch (e) {}
+    setSync('ok', OK_TEXT);
+  } catch (e) { syncError(e); }
+  syncing = false;
+}
+
+async function startLogin() {
+  if (!CFG.clientId) return;
+  const run = ++loginRun;
+  $('#main').innerHTML = `<article class="sheet"><span class="eyebrow">Entrar com GitHub</span><h2>Preparando o código…</h2></article>`;
+  closeMenu(); window.scrollTo(0, 0);
+  let d;
+  try {
+    const r = await fetch('https://github.com/login/device/code', { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ client_id: CFG.clientId, scope: 'gist' }) });
+    d = await r.json();
+    if (!d.user_code) throw new Error(d.error || 'sem código');
+  } catch (e) {
+    $('#main').innerHTML = `<article class="sheet"><span class="eyebrow">Entrar com GitHub</span><h2>Não consegui começar o login</h2>
+      <p class="read">${isNative ? 'Confira sua internet e tente de novo.' : 'O login com GitHub funciona no app para Android. No navegador, o progresso fica salvo só neste aparelho.'}</p>
+      <div class="sheetfoot"><button class="btn ghost" type="button" id="lgBack">Voltar</button></div></article>`;
+    $('#lgBack').onclick = () => render();
+    return;
+  }
+  $('#main').innerHTML = `<article class="sheet"><span class="eyebrow">Entrar com GitHub</span><h2>Digite este código no GitHub</h2>
+    <div class="code" id="ucode">${esc(d.user_code)}</div>
+    <ol class="steps"><li>Toque em <b>Copiar e abrir o GitHub</b>.</li><li>Cole o código na página que abrir e toque em <b>Continue</b>, depois em <b>Authorize</b>.</li><li>Volte para este app. O login termina sozinho.</li></ol>
+    <p class="exp" id="lgStatus">Esperando você autorizar no GitHub…</p>
+    <div class="sheetfoot"><button class="btn ghost" type="button" id="lgCancel">Cancelar</button><div class="nav"><button class="btn primary" type="button" id="lgOpen">Copiar e abrir o GitHub</button></div></div></article>`;
+  $('#lgCancel').onclick = () => { loginRun++; render(); };
+  $('#lgOpen').onclick = async () => {
+    try { await navigator.clipboard.writeText(d.user_code); } catch (e) { const s = window.getSelection(), rg = document.createRange(); rg.selectNodeContents($('#ucode')); s.removeAllRanges(); s.addRange(rg); }
+    openExternal(d.verification_uri || 'https://github.com/login/device');
+  };
+  let interval = (d.interval || 5) * 1000;
+  const until = Date.now() + (d.expires_in || 900) * 1000;
+  while (run === loginRun && Date.now() < until) {
+    await sleep(interval);
+    if (run !== loginRun) return;
+    let j;
+    try {
+      const r = await fetch('https://github.com/login/oauth/access_token', { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: CFG.clientId, device_code: d.device_code, grant_type: 'urn:ietf:params:oauth:grant-type:device_code' }) });
+      j = await r.json();
+    } catch (e) { continue; }
+    if (j.access_token) {
+      auth = { token: j.access_token, login: '', avatar: '', gistId: null };
+      try { const u = await gh('/user'); auth.login = u.login; auth.avatar = u.avatar_url; } catch (e) {}
+      saveAuth(); renderAccount(); render(); await syncNow(); return;
+    }
+    if (j.error === 'authorization_pending') continue;
+    if (j.error === 'slow_down') { interval += 5000; continue; }
+    const msg = j.error === 'access_denied' ? 'Você cancelou a autorização no GitHub.' : j.error === 'expired_token' ? 'O código expirou.' : 'O GitHub recusou o login (' + esc(j.error || 'erro') + ').';
+    const st = $('#lgStatus'); if (st) st.innerHTML = msg + ' Toque em Cancelar e tente de novo.';
+    return;
+  }
+  const st = $('#lgStatus'); if (st && run === loginRun) st.textContent = 'O código expirou. Toque em Cancelar e tente de novo.';
+}
+function logout() {
+  auth = null; try { localStorage.removeItem('c201.auth'); } catch (e) {}
+  renderAccount();
+}
+$('#loginBtn').onclick = startLogin;
+$('#logoutBtn').onclick = () => { logout(); setSync('wait', ''); };
+$('#syncBtn').onclick = syncNow;
+renderAccount();
+if (auth && auth.token) { setSync('ok', OK_TEXT); syncNow(); }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { syncNow(); } else if (wt) { clearTimeout(wt); flush(); } });
+window.addEventListener('online', () => syncNow());
+
+/* ---------- Atualizações pelo GitHub Releases ---------- */
+const cmpVer = (a, b) => { const pa = a.split('.').map(Number), pb = b.split('.').map(Number); for (let i = 0; i < 3; i++) { const d = (pa[i] || 0) - (pb[i] || 0); if (d) return d; } return 0; };
+$('#appVer').textContent = APP_VERSION;
+let apkUrl = null;
+async function checkUpdate(silent) {
+  const t = $('#updText');
+  if (!CFG.repo) { if (!silent) t.textContent = 'Repositório não configurado.'; return; }
+  if (!silent) t.textContent = 'Procurando versão nova…';
+  try {
+    const r = await fetch(`https://api.github.com/repos/${CFG.repo}/releases/latest`, { headers: { 'Accept': 'application/vnd.github+json' }, cache: 'no-store' });
+    if (r.status === 404) { if (!silent) t.textContent = 'Nenhuma versão publicada ainda.'; return; }
+    if (!r.ok) throw new Error(r.status);
+    const rel = await r.json();
+    const latest = String(rel.tag_name || '').replace(/^v/, '');
+    const apk = (rel.assets || []).find(a => /\.apk$/i.test(a.name));
+    if (APP_VERSION !== 'dev' && latest && apk && cmpVer(latest, APP_VERSION) > 0) {
+      apkUrl = apk.browser_download_url;
+      t.textContent = `Versão ${latest} disponível.`;
+      $('#updGet').hidden = false;
+    } else if (!silent) { t.textContent = 'Você já está na versão mais recente.'; $('#updGet').hidden = true; }
+  } catch (e) { if (!silent) t.textContent = 'Não consegui verificar agora. Confira a internet.'; }
+}
+$('#updBtn').onclick = () => checkUpdate(false);
+$('#updGet').onclick = () => { if (apkUrl) { openExternal(apkUrl); $('#updText').textContent = 'Abra o arquivo baixado e toque em Instalar. Seu progresso continua.'; } };
+if (isNative) checkUpdate(true);
+</script>
