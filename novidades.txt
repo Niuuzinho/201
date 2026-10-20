@@ -1,0 +1,5 @@
+Versão 1.0.9
+- Teste do download da atualização por dentro do app.
+- As novidades de cada versão passam a aparecer na tela de Ajustes.
+
+Baixe o arquivo .apk abaixo no celular e toque nele para instalar ou atualizar.
