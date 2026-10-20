@@ -147,6 +147,7 @@ button { font: inherit; color: inherit; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .topacts { display: flex; gap: 6px; }
 .scrim { display: none; }
+.tabbar { display: none; }
 
 /* ---------- Área principal ---------- */
 .main { min-width: 0; display: flex; flex-direction: column; gap: 20px; }
@@ -346,12 +347,18 @@ textarea.box { width: 100%; min-height: 90px; font-family: var(--f-mono); font-s
 
 /* ---------- Celular ---------- */
 @media (max-width: 900px) {
-  .app { grid-template-columns: minmax(0, 1fr); gap: 16px; padding-block: 12px 40px; }
+  .app { grid-template-columns: minmax(0, 1fr); gap: 16px; padding-block: 12px calc(84px + env(safe-area-inset-bottom, 0px)); }
   .topbar { display: flex; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; background: var(--paper); }
   .topbar strong { margin-right: auto; font-weight: 800; font-size: 17px; letter-spacing: -.02em; }
   .menubtn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--line); background: var(--sheet); border-radius: 8px; cursor: pointer; font-weight: 700; }
   .side { position: fixed; z-index: 40; top: 0; bottom: 0; left: 0; width: min(320px, 86vw); max-height: none; padding: calc(env(safe-area-inset-top, 0px) + 18px) 16px calc(env(safe-area-inset-bottom, 0px) + 18px) max(16px, env(safe-area-inset-left, 0px)); background: var(--paper); border-right: 1px solid var(--line); transform: translateX(-105%); transition: transform .25s ease; }
   .side.open { transform: none; }
+  .tabbar { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--sheet); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .tabbar button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 4px 8px; border: 0; background: transparent; color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer; }
+  .tabbar svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .tabbar button[aria-current="page"] { color: var(--accent); }
+  .tabbar .dot-badge { top: 6px; right: calc(50% - 20px); }
+  .toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); }
   .scrim { position: fixed; inset: 0; z-index: 35; background: rgba(8, 12, 20, .45); }
   .scrim.open { display: block; }
   .sheetfoot .nav { width: 100%; }
@@ -363,14 +370,9 @@ textarea.box { width: 100%; min-height: 90px; font-family: var(--f-mono); font-s
 
 <div class="app">
   <div class="topbar">
-    <button class="menubtn" id="menuBtn" aria-controls="side" aria-expanded="false">
-      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      Matérias
-    </button>
-    <strong>Cargo 201</strong>
+    <strong>Caderno do Cargo 201</strong>
     <div class="topacts">
       <button class="iconbtn" type="button" id="topSearch" aria-label="Buscar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
-      <button class="iconbtn" type="button" id="topCfg" aria-label="Configurações"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><i class="dot-badge" id="cfgDot" hidden></i></button>
     </div>
   </div>
   <div class="scrim" id="scrim"></div>
@@ -400,6 +402,12 @@ textarea.box { width: 100%; min-height: 90px; font-family: var(--f-mono); font-s
 
   <main class="main" id="main"></main>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <nav class="tabbar" aria-label="Navegação principal">
+    <button type="button" id="tbHome"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg><span>Início</span></button>
+    <button type="button" id="tbMenu" aria-controls="side" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Matérias</span></button>
+    <button type="button" id="tbSim"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><span>Simulado</span></button>
+    <button type="button" id="tbCfg"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><i class="dot-badge" id="cfgDot" hidden></i><span>Ajustes</span></button>
+  </nav>
 </div>
 
 <script>
@@ -502,6 +510,8 @@ function renderNav(current) {
       g.appendChild(b);
     });
   }
+  [['#tbHome', 'inicio'], ['#tbSim', 'simulado'], ['#tbCfg', 'config']].forEach(([id, v]) => { const e = $(id); if (current === v) e.setAttribute('aria-current', 'page'); else e.removeAttribute('aria-current'); });
+  if (BY[current]) $('#tbMenu').setAttribute('aria-current', 'page'); else $('#tbMenu').removeAttribute('aria-current');
   [['#navHome', 'inicio'], ['#navSim', 'simulado'], ['#navCfg', 'config']].forEach(([id, v]) => { const e = $(id); if (current === v) e.setAttribute('aria-current', 'page'); else e.removeAttribute('aria-current'); });
   $('#navHomeCt').textContent = `${allDone()}/${TOTAL}`;
 }
@@ -806,10 +816,17 @@ function renderSearch(q) {
 
 /* ---------- Navegação ---------- */
 let route = { v: 'inicio' };
+let menuOpen = false;
+const sameRoute = (a, b) => a.v === b.v && String(a.t ?? '') === String(b.t ?? '');
+const hashFor = v => '#' + (BY[v] || v === 'config' || v === 'simulado' ? v : 'inicio');
+// Cada tela nova entra no histórico, então o botão voltar do celular volta de verdade.
+// Trocar de tópico dentro da mesma matéria não cria tela nova.
 function go(v, t) {
+  const prev = route, st = history.state || {};
   route = { v, t };
-  try { history.replaceState(null, '', '#' + (BY[v] || v === 'config' ? v : 'inicio')); } catch (e) {}
-  render(); closeMenu(); window.scrollTo(0, 0);
+  const replace = (BY[v] && prev.v === v) || sameRoute(prev, route) || st.menu;
+  try { (replace ? history.replaceState : history.pushState).call(history, { v, t: t ?? null }, '', hashFor(v)); } catch (e) {}
+  render(); setMenu(false); window.scrollTo(0, 0);
 }
 function render() {
   if (BY[route.v]) { renderNav(route.v); renderMateria(route.v, route.t); }
@@ -821,9 +838,20 @@ $('#brand').onclick = () => go('inicio');
 $('#navHome').onclick = () => go('inicio');
 let qt; $('#q').addEventListener('input', e => { clearTimeout(qt); const v = e.target.value; qt = setTimeout(() => v.trim() ? renderSearch(v) : render(), 120); });
 
-function openMenu() { $('#side').classList.add('open'); $('#scrim').classList.add('open'); $('#menuBtn').setAttribute('aria-expanded', 'true'); }
-function closeMenu() { $('#side').classList.remove('open'); $('#scrim').classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded', 'false'); }
-$('#menuBtn').onclick = openMenu; $('#scrim').onclick = closeMenu;
+function setMenu(on) { menuOpen = on; $('#side').classList.toggle('open', on); $('#scrim').classList.toggle('open', on); $('#tbMenu').setAttribute('aria-expanded', String(on)); }
+// o menu aberto também é uma "tela" do histórico: o botão voltar só o fecha
+function openMenu() { if (menuOpen) return; try { history.pushState({ v: route.v, t: route.t ?? null, menu: true }, '', location.href); } catch (e) {} setMenu(true); }
+function closeMenu() { if (!menuOpen) return; if (history.state && history.state.menu) history.back(); else setMenu(false); }
+$('#scrim').onclick = closeMenu;
+window.addEventListener('popstate', e => {
+  const st = e.state;
+  if (st && st.menu) { setMenu(true); return; }
+  const was = menuOpen; if (was) setMenu(false);
+  let r = st && st.v ? { v: st.v, t: st.t ?? undefined } : null;
+  if (!r) { const h = (location.hash || '').slice(1); r = BY[h] || h === 'config' || h === 'simulado' ? { v: h } : { v: 'inicio' }; }
+  if (was && sameRoute(r, route)) return;
+  route = r; render(); window.scrollTo(0, 0);
+});
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeMenu();
   if (e.target.tagName === 'INPUT' || !BY[route.v] || route.t === 'quiz') return;
@@ -1141,14 +1169,18 @@ if (isNative) checkUpdate(false);
 renderUpd();
 
 const h0 = (location.hash || '').slice(1);
-route = BY[h0] || h0 === 'config' ? { v: h0 } : { v: 'inicio' };
+route = BY[h0] || h0 === 'config' || h0 === 'simulado' ? { v: h0 } : { v: 'inicio' };
+try { history.replaceState({ v: route.v, t: null }, '', hashFor(route.v)); } catch (e) {}
 render();
 
 
 /* ---------- Botões da barra e do menu ---------- */
 $('#navCfg').onclick = () => go('config');
 $('#navSim').onclick = () => { if (!sim) newSim(); go('simulado'); };
-$('#topCfg').onclick = () => go('config');
+$('#tbHome').onclick = () => go('inicio');
+$('#tbMenu').onclick = () => (menuOpen ? closeMenu() : openMenu());
+$('#tbSim').onclick = () => { if (!sim) newSim(); go('simulado'); };
+$('#tbCfg').onclick = () => go('config');
 $('#topSearch').onclick = () => { openMenu(); setTimeout(() => $('#q').focus(), 260); };
 
 /* deslizar para os lados troca de tópico (sem marcar como estudado) */
