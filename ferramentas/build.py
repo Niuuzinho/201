@@ -210,8 +210,12 @@ QUIZ = {
  ],
 }
 
+from questoes_extra import EXTRA
 for m in data:
-    m['quiz'] = [{'q': q, 'opts': o, 'a': a, 'exp': e} for q, o, a, e in QUIZ[m['id']]]
+    qs = QUIZ[m['id']] + EXTRA.get(m['id'], [])
+    for q, o, a, e in qs:
+        assert 0 <= a < len(o), q
+    m['quiz'] = [{'q': q, 'opts': o, 'a': a, 'exp': e} for q, o, a, e in qs]
 
 total = sum(len(m['topics']) for m in data)
 print('total', total)

@@ -8,7 +8,9 @@ App de estudos para o concurso da UFBA 2026, **Cargo 201 (Assistente em Administ
 2. Baixe o arquivo `Caderno201-vX.Y.Z.apk` da versão mais nova.
 3. Abra o arquivo. Na primeira vez, o Android pede para permitir instalar apps desta fonte: permita e toque em **Instalar**.
 
-Para atualizar, use o botão **Checar atualização** no menu do app. Ele baixa a versão nova daqui e o progresso continua.
+Para atualizar, abra **Configurações** (engrenagem no topo) e toque em **Procurar atualização**. Se houver versão nova, toque em **Baixar e instalar**. O progresso continua.
+
+Em **Configurações** você também escolhe o tema (claro, escuro, sépia, oceano, floresta, preto total, alto contraste ou automático), a cor de destaque, o tamanho e a fonte do texto, a data da prova, entra com o GitHub e guarda ou restaura uma cópia do progresso.
 
 ## Perfil e progresso
 

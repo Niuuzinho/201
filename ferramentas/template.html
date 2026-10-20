@@ -746,7 +746,7 @@ function renderConfig() {
       ${CFG.repo ? `<p><a href="https://github.com/${esc(CFG.repo)}" target="_blank" rel="noopener" style="color:var(--accent)">github.com/${esc(CFG.repo)}</a></p>` : ''}
     </section>
   </div>`;
-  const q = s => document.querySelectorAll(s);
+  const q = s => $('#main').querySelectorAll(s);
   q('[data-theme-pick]').forEach(b => b.onclick = () => { prefs.theme = b.dataset.themePick; savePrefs(); renderConfig(); });
   q('[data-accent]').forEach(b => b.onclick = () => { prefs.accent = b.dataset.accent; savePrefs(); renderConfig(); });
   q('[data-font]').forEach(b => b.onclick = () => { prefs.font = b.dataset.font; savePrefs(); renderConfig(); });
